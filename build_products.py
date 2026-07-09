@@ -450,7 +450,48 @@ def main():
             ],
         },
         "blueOcean": [],
+        "monthlyTrends": [],
     }
+
+    # ─── 네이버 월별 트렌드 차트 데이터 수집 ───
+    if has_naver:
+        print("\n  📈 월별 수요 사이클 차트 데이터 수집...")
+        chart_keywords = ["선풍기", "핫팩", "캠핑", "패딩", "제습기"]
+        chart_data = naver_search_trend(chart_keywords, months=24)
+
+        if chart_data.get("results"):
+            # 월별로 정리 (1~12월 평균)
+            monthly = {}  # {1: {선풍기: [val1, val2], ...}, ...}
+            for group in chart_data["results"]:
+                kw = group["title"]
+                for pt in group.get("data", []):
+                    m = int(pt["period"].split("-")[1])
+                    if m not in monthly:
+                        monthly[m] = {}
+                    if kw not in monthly[m]:
+                        monthly[m][kw] = []
+                    monthly[m][kw].append(pt["ratio"])
+
+            # 월별 평균 계산 → 차트 데이터로 변환
+            chart_result = []
+            for m in range(1, 13):
+                row = {"m": f"{m}월"}
+                if m in monthly:
+                    for kw in chart_keywords:
+                        vals = monthly.get(m, {}).get(kw, [0])
+                        row[kw] = round(sum(vals) / len(vals), 1)
+                else:
+                    for kw in chart_keywords:
+                        row[kw] = 0
+                chart_result.append(row)
+
+            output["monthlyTrends"] = chart_result
+            print(f"    ✅ 12개월 × {len(chart_keywords)}개 키워드 차트 데이터 생성")
+            for row in chart_result[:3]:
+                print(f"       {row}")
+            print(f"       ...")
+    else:
+        print("  ⏭️ 네이버 API 미설정, 차트 데이터 없음")
 
     all_products = []
 

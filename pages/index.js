@@ -31,20 +31,7 @@ const C = {
   purple: "#7048E8",
 };
 
-const CHART_DATA = [
-  { m: "1월", 핫팩: 92, 선풍기: 5, 캠핑: 15, 수영복: 2 },
-  { m: "2월", 핫팩: 78, 선풍기: 8, 캠핑: 22, 수영복: 5 },
-  { m: "3월", 핫팩: 25, 선풍기: 18, 캠핑: 45, 수영복: 12 },
-  { m: "4월", 핫팩: 8, 선풍기: 32, 캠핑: 72, 수영복: 28 },
-  { m: "5월", 핫팩: 3, 선풍기: 55, 캠핑: 88, 수영복: 48 },
-  { m: "6월", 핫팩: 2, 선풍기: 85, 캠핑: 82, 수영복: 78 },
-  { m: "7월", 핫팩: 1, 선풍기: 98, 캠핑: 75, 수영복: 95 },
-  { m: "8월", 핫팩: 2, 선풍기: 88, 캠핑: 70, 수영복: 82 },
-  { m: "9월", 핫팩: 8, 선풍기: 42, 캠핑: 55, 수영복: 25 },
-  { m: "10월", 핫팩: 35, 선풍기: 12, 캠핑: 35, 수영복: 8 },
-  { m: "11월", 핫팩: 72, 선풍기: 5, 캠핑: 18, 수영복: 3 },
-  { m: "12월", 핫팩: 95, 선풍기: 3, 캠핑: 10, 수영복: 2 },
-];
+// 월별 수요 사이클 차트 데이터는 products.json에서 로딩 (네이버 데이터랩 실제 데이터)
 
 // ─── 공통 컴포넌트 ────────────────────────────────
 
@@ -161,13 +148,16 @@ function TrendTab({ trending }) {
   );
 }
 
-function SeasonTab({ seasons }) {
+function SeasonTab({ seasons, monthlyTrends }) {
   const keys = Object.keys(seasons);
   const [sel, setSel] = useState(keys[1] || keys[0]);
+  const chartData = monthlyTrends || [];
+  const chartKeys = chartData.length > 0 ? Object.keys(chartData[0]).filter(k => k !== "m") : [];
+  const COLORS = ["#E03131", "#1971C2", "#2B8A3E", "#0C8599", "#7048E8"];
   return (
     <>
       <Insight title="계절별 히트상품 패턴">
-        과거 3년 판매 데이터 기반. 점수가 높을수록 해당 시즌 필수 아이템입니다.
+        네이버 검색 트렌드 2년치 데이터 기반. 점수가 높을수록 해당 시즌 필수 아이템입니다.
       </Insight>
       <div style={{ display: "flex", gap: "6px", marginBottom: "14px", flexWrap: "wrap" }}>
         {keys.map(s => (
@@ -184,18 +174,17 @@ function SeasonTab({ seasons }) {
         {(seasons[sel] || []).map(item => <ProductCard key={item.rank} item={item} type="season" />)}
       </div>
       <div style={{ background: C.card, borderRadius: "10px", padding: "16px", marginTop: "20px", border: `1px solid ${C.border}` }}>
-        <div style={{ fontSize: "14px", fontWeight: 600, marginBottom: "10px" }}>월별 수요 사이클</div>
+        <div style={{ fontSize: "14px", fontWeight: 600, marginBottom: "10px" }}>월별 수요 사이클 (네이버 검색 트렌드 실제 데이터)</div>
         <ResponsiveContainer width="100%" height={240}>
-          <LineChart data={CHART_DATA}>
+          <LineChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#F1F3F5" />
             <XAxis dataKey="m" tick={{ fontSize: 11 }} />
             <YAxis tick={{ fontSize: 11 }} />
             <Tooltip />
             <Legend wrapperStyle={{ fontSize: 11 }} />
-            <Line type="monotone" dataKey="핫팩" stroke="#E03131" strokeWidth={2} dot={{ r: 2 }} />
-            <Line type="monotone" dataKey="선풍기" stroke="#1971C2" strokeWidth={2} dot={{ r: 2 }} />
-            <Line type="monotone" dataKey="캠핑" stroke="#2B8A3E" strokeWidth={2} dot={{ r: 2 }} />
-            <Line type="monotone" dataKey="수영복" stroke="#0C8599" strokeWidth={2} dot={{ r: 2 }} />
+            {chartKeys.map((key, i) => (
+              <Line key={key} type="monotone" dataKey={key} stroke={COLORS[i % COLORS.length]} strokeWidth={2} dot={{ r: 2 }} />
+            ))}
           </LineChart>
         </ResponsiveContainer>
       </div>
@@ -498,7 +487,7 @@ export default function Home({ data }) {
       {/* 콘텐츠 */}
       <main style={{ maxWidth: 1100, margin: "0 auto", padding: "18px 16px" }}>
         {tab === "trend" && <TrendTab trending={data.trending} />}
-        {tab === "season" && <SeasonTab seasons={data.seasons} />}
+        {tab === "season" && <SeasonTab seasons={data.seasons} monthlyTrends={data.monthlyTrends} />}
         {tab === "age" && <AgeTab ageGroups={data.ageGroups} />}
         {tab === "price" && <PriceTab priceAnalysis={data.priceAnalysis} />}
         {tab === "best" && <BestTab bestSellers={data.bestSellers} sellerRankings={data.sellerRankings} />}
