@@ -1,20 +1,23 @@
 # -*- coding: utf-8 -*-
 """
-MarketQuant 데이터 파이프라인 v5
+MarketQuant 데이터 파이프라인 v6
 ================================
-10탭 완전체 + 학술 기반 분석
-- 쿠팡 크롤링 (headless, 빠른 딜레이)
-- 네이버 데이터랩 (계절성/연령대/검색량)
-- 구글 트렌드 (글로벌 선행 지표)
-- HHI 시장집중도 계산
-- Bass 확산 모델 단계 판정
+- 7일 TTL 캐시 (동일 키워드 7일간 재사용)
+- 느린 딜레이 (8~12초, 차단 방지)
+- 매일 돌려도 7일 안 된 키워드는 스킵 → 1~2분 완료
+- 7일 지난 키워드만 재크롤링
 """
 
 import undetected_chromedriver as uc
 from bs4 import BeautifulSoup
 import requests, json, time, random, re, os
 from datetime import datetime, date, timedelta
-from collections import Counter, defaultdict
+from collections import Counter
+
+# ═══ 캐시 설정 ═══
+CACHE_FILE = "crawl_cache_v6.json"
+CACHE_TTL_DAYS = 7  # 7일 후 재크롤링
+CRAWL_DELAY = (8, 12)  # 8~12초 딜레이 (안전)
 
 # ═══ API 키 자동 로드 ═══
 NAVER_ID = NAVER_SECRET = ""
@@ -30,7 +33,31 @@ try:
 except: HAS_GOOGLE = False
 
 print(f"✅ 네이버 API: {'연결' if HAS_NAVER else '미설정'}")
-print(f"✅ 구글 트렌드: {'연결' if HAS_GOOGLE else '미설치 (pip install pytrends)'}")
+print(f"✅ 구글 트렌드: {'연결' if HAS_GOOGLE else '미설치'}")
+
+# ═══ 캐시 관리 ═══
+def load_cache():
+    if os.path.exists(CACHE_FILE):
+        with open(CACHE_FILE,"r",encoding="utf-8") as f:
+            return json.load(f)
+    return {}
+
+def save_cache(cache):
+    with open(CACHE_FILE,"w",encoding="utf-8") as f:
+        json.dump(cache,f,ensure_ascii=False,indent=2)
+
+def is_cache_valid(cache, key):
+    """캐시가 7일 이내인지 확인"""
+    if key not in cache:
+        return False
+    cached_date = cache[key].get("cached_at","")
+    if not cached_date:
+        return False
+    try:
+        cached = datetime.strptime(cached_date, "%Y-%m-%d")
+        return (datetime.now() - cached).days < CACHE_TTL_DAYS
+    except:
+        return False
 
 # ═══ 키워드 설정 ═══
 SEASONAL_KW = {
@@ -50,8 +77,8 @@ AGE_KW = {
 }
 BLUE_KW = ["반려식물자동급수기","노트북거치대","캠핑미니화로대","펫자동급식기","유아감각놀이","실리콘얼음틀",
            "차량용무선충전거치대","독서대높이조절","미니제습기usb","칫솔살균기","모니터받침대","접이식테이블"]
-CATEGORY_KW = ["가전","패션","뷰티","식품","건강","스포츠","주방","생활","디지털","유아"]  # 경쟁도 분석용
-GLOBAL_KW_EN = ["Stanley tumbler","air fryer","robot vacuum","protein shake","LED strip lights"]  # 구글 글로벌
+CATEGORY_KW = ["가전","패션","뷰티","식품","건강","스포츠","주방","생활","디지털","유아"]
+GLOBAL_KW_EN = ["Stanley tumbler","air fryer","robot vacuum","protein shake","LED strip lights"]
 GLOBAL_KW_KR = ["스탠리텀블러","에어프라이어","로봇청소기","프로틴쉐이크","LED무드등"]
 
 EMOJI = {"캠핑":"🏕️","마스크":"😷","가디건":"👚","매트":"🧺","선풍기":"🌀","래쉬":"🏄","아이스":"🧊","차단":"☀️","김장":"🥬","코트":"🧥","텀블러":"☕","가습":"💧","손난로":"🔥","패딩":"🧥","온수":"🛏️","핫팩":"♨️","우산":"☂️","제습":"💧","방수":"👟","건조":"👕","이어":"🎧","청소기":"🤖","프라이어":"🍟","닌텐도":"🎮","프로틴":"💪","케이스":"📱","포토":"📸","스티커":"✏️","세럼":"✨","물티슈":"👶","글루코":"💪","골프":"⛳","혈압":"❤️","등산":"🥾","비타민":"💊","화로":"🔥","급수":"🌱","급식":"🐱","얼음":"🧊","거치":"📱","독서":"📖","과자":"🍪","립틴트":"💋","백팩":"🎒","빔프":"📽️","충전":"🔋","반팔":"👕","무드등":"💡","안마":"💆","와인":"🍷","안경":"👓","킥보드":"🛴","선반":"🏠","보습":"🧴","식기":"🍽️","견과":"🥜","홍삼":"🧧","쿠션":"🪑","태블릿":"📱","무릎":"🦵","밥솥":"🍚","워킹":"👟","살균":"🦠","모니터":"🖥️","테이블":"🪑","스탠리":"☕","다이슨":"💇","곰팡이":"🧴","모기":"🦟","전기장판":"🛏️","단풍":"🍁","필터":"🌀","LED":"💡"}
@@ -62,7 +89,6 @@ def emoji(n):
 
 # ═══ 네이버 API ═══
 def nv_headers(): return {"X-Naver-Client-Id":NAVER_ID,"X-Naver-Client-Secret":NAVER_SECRET,"Content-Type":"application/json"}
-
 def nv_trend(keywords, months=24):
     end=datetime.now().strftime("%Y-%m-%d"); start=(datetime.now()-timedelta(days=months*30)).strftime("%Y-%m-%d")
     groups=[{"groupName":kw,"keywords":[kw]} for kw in keywords[:5]]
@@ -89,7 +115,6 @@ def nv_age(keyword):
 
 # ═══ 구글 트렌드 ═══
 def google_trends(kw_en, kw_kr):
-    """구글 글로벌 vs 한국 트렌드 비교"""
     if not HAS_GOOGLE: return []
     print("\n  🌐 구글 트렌드 수집...")
     results = []
@@ -97,13 +122,10 @@ def google_trends(kw_en, kw_kr):
         pytrends = TrendReq(hl='ko', tz=540)
         for en, kr in zip(kw_en, kw_kr):
             try:
-                # 글로벌 트렌드
                 pytrends.build_payload([en], timeframe='today 12-m', geo='')
                 global_df = pytrends.interest_over_time()
-                # 한국 트렌드
                 pytrends.build_payload([en], timeframe='today 12-m', geo='KR')
                 kr_df = pytrends.interest_over_time()
-
                 if not global_df.empty and not kr_df.empty:
                     g_recent = global_df[en].iloc[-4:].mean()
                     g_prev = global_df[en].iloc[-8:-4].mean()
@@ -111,59 +133,41 @@ def google_trends(kw_en, kw_kr):
                     k_prev = kr_df[en].iloc[-8:-4].mean()
                     g_change = int((g_recent-g_prev)/max(g_prev,1)*100)
                     k_change = int((k_recent-k_prev)/max(k_prev,1)*100)
-
-                    # 글로벌 대비 한국 래그 판정
-                    if g_change > 20 and k_change < g_change * 0.5:
-                        stage = "🔥 한국 진입 임박"
-                    elif g_change > 0 and k_change > 0:
-                        stage = "📈 동시 상승 중"
-                    elif g_change < 0 and k_change > 0:
-                        stage = "🇰🇷 한국 피크 구간"
-                    else:
-                        stage = "📊 모니터링"
-
-                    # Bass 확산 단계 판정
+                    if g_change > 20 and k_change < g_change * 0.5: stage = "🔥 한국 진입 임박"
+                    elif g_change > 0 and k_change > 0: stage = "📈 동시 상승 중"
+                    elif g_change < 0 and k_change > 0: stage = "🇰🇷 한국 피크 구간"
+                    else: stage = "📊 모니터링"
                     if k_recent < 20: bass = "도입기 (Innovators)"
                     elif k_recent < 50: bass = "성장기 (Early Adopters)"
                     elif k_recent < 80: bass = "성숙기 (Early Majority)"
                     else: bass = "포화기 (Late Majority)"
-
-                    results.append({
-                        "keyword_en": en, "keyword_kr": kr,
-                        "global_score": round(g_recent,1), "kr_score": round(k_recent,1),
-                        "global_change": f"+{g_change}%" if g_change>=0 else f"{g_change}%",
-                        "kr_change": f"+{k_change}%" if k_change>=0 else f"{k_change}%",
-                        "stage": stage, "bass_stage": bass,
-                        "img": emoji(kr),
-                    })
-                    print(f"    {kr}: 글로벌 {g_recent:.0f}({'+' if g_change>=0 else ''}{g_change}%) / 한국 {k_recent:.0f}({'+' if k_change>=0 else ''}{k_change}%) → {stage}")
-                time.sleep(2)  # 구글 레이트리밋
+                    results.append({"keyword_en":en,"keyword_kr":kr,"global_score":round(g_recent,1),"kr_score":round(k_recent,1),
+                        "global_change":f"+{g_change}%" if g_change>=0 else f"{g_change}%","kr_change":f"+{k_change}%" if k_change>=0 else f"{k_change}%",
+                        "stage":stage,"bass_stage":bass,"img":emoji(kr)})
+                    print(f"    {kr}: 글로벌 {g_recent:.0f} / 한국 {k_recent:.0f} → {stage}")
+                time.sleep(2)
             except Exception as e:
-                print(f"    {kr}: 실패 ({str(e)[:30]})")
-                continue
-    except Exception as e:
-        print(f"  [!] 구글 트렌드 오류: {e}")
+                print(f"    {kr}: 실패 ({str(e)[:30]})"); continue
+    except Exception as e: print(f"  [!] 구글 오류: {e}")
     return results
 
 # ═══ 크롤링 ═══
 def start_browser():
-    print("  🔄 크롬 시작 (headless)...")
+    print("  🔄 크롬 시작...")
     opts = uc.ChromeOptions()
-    #opts.add_argument("--headless=new")
     opts.add_argument("--lang=ko-KR")
     opts.add_argument("--disable-blink-features=AutomationControlled")
     opts.add_argument("--disable-dev-shm-usage")
-    opts.add_argument("--no-sandbox")
     d = uc.Chrome(options=opts)
     d.set_page_load_timeout(30)
-    d.get("https://www.coupang.com/"); time.sleep(3)
+    d.get("https://www.coupang.com/"); time.sleep(4)
     return d
 
 def crawl(driver, keyword, n=5):
     for attempt in range(3):
         try:
             driver.get(f"https://www.coupang.com/np/search?q={keyword}&channel=user&sorter=scoreDesc&listSize=36")
-            time.sleep(random.uniform(2.5,4))
+            time.sleep(random.uniform(3,5))
             for i in range(1,5):
                 driver.execute_script(f"window.scrollTo(0,document.body.scrollHeight*{i}/4)")
                 time.sleep(0.5)
@@ -201,86 +205,89 @@ def crawl(driver, keyword, n=5):
             time.sleep(3); driver=start_browser()
     return driver, []
 
-# ═══ HHI 계산 ═══
 def calc_hhi(products):
-    """리뷰 수 기반 시장집중도 (HHI) 계산"""
     total = sum(p.get("reviews",0) for p in products)
     if total == 0: return 0
     shares = [(p.get("reviews",0)/total*100) for p in products]
     return int(sum(s**2 for s in shares))
 
-# ═══ Bass 단계 판정 ═══
 def bass_stage(ratio):
-    """현재/피크 비율로 Bass 확산 단계 판정"""
     if ratio < 15: return "도입기"
     elif ratio < 40: return "초기성장기"
     elif ratio < 70: return "성장기"
     elif ratio < 90: return "성숙기"
     else: return "포화/쇠퇴기"
 
-# ═══ 메인 파이프라인 ═══
+# ═══ 메인 ═══
 def main():
     print(f"\n{'='*55}")
-    print(f"  MarketQuant 데이터 파이프라인 v5")
+    print(f"  MarketQuant v6 (7일 TTL 캐시)")
     print(f"  {date.today().isoformat()}")
     print(f"{'='*55}")
 
-    driver=start_browser(); print("   쿠팡 접속 OK")
-    cache_file="crawl_cache.json"
-    cache={}
-    if os.path.exists(cache_file):
-        with open(cache_file,"r",encoding="utf-8") as f: cache=json.load(f)
-        print(f"  📂 캐시 {len(cache)}개")
+    cache = load_cache()
+    today_str = date.today().isoformat()
 
-    def save_cache(): 
-        with open(cache_file,"w",encoding="utf-8") as f: json.dump(cache,f,ensure_ascii=False)
+    # 크롤링이 필요한 키워드만 모으기
+    all_tasks = []
+    # 계절성
+    for season, kws in SEASONAL_KW.items():
+        for kw in kws:
+            all_tasks.append((kw, kw, 5, {"type":"season","subkey":season,"cat":kw}))
+    # 트렌드
+    for kw in TREND_KW:
+        all_tasks.append((kw, kw, 5, {"type":"trend","cat":kw}))
+    # 연령대
+    for age, kw_list in AGE_KW.items():
+        for cat,kw in kw_list:
+            all_tasks.append((f"age_{age}_{kw}", kw, 2, {"type":"age","subkey":age,"cat":cat}))
+    # 블루오션
+    for kw in BLUE_KW:
+        all_tasks.append((f"blue_{kw}", kw, 3, {"type":"blue","cat":kw}))
+    # 카테고리 경쟁도
+    for cat in CATEGORY_KW:
+        all_tasks.append((f"cat_{cat}", cat, 10, {"type":"category","cat":cat}))
 
-    def do_crawl(key, kw, n=5, extra={}):
-        if key not in cache:
-            print(f"    → '{kw}' 크롤링...")
-            nonlocal driver
+    # 캐시 유효한 것 / 크롤링 필요한 것 분류
+    need_crawl = []
+    cached_count = 0
+    for key, kw, n, extra in all_tasks:
+        if is_cache_valid(cache, key):
+            cached_count += 1
+        else:
+            need_crawl.append((key, kw, n, extra))
+
+    print(f"\n  📂 캐시 유효: {cached_count}개 (7일 이내)")
+    print(f"  🔄 크롤링 필요: {len(need_crawl)}개")
+
+    # 크롤링이 필요한 경우에만 브라우저 시작
+    if need_crawl:
+        print(f"\n  ⏱️ 예상 소요: {len(need_crawl) * 10 // 60}분 {len(need_crawl) * 10 % 60}초 (딜레이 8~12초)")
+        driver = start_browser()
+        print("   쿠팡 접속 OK")
+
+        for idx, (key, kw, n, extra) in enumerate(need_crawl, 1):
+            print(f"  [{idx}/{len(need_crawl)}] '{kw}' 크롤링...")
             driver, products = crawl(driver, kw, n)
             for p in products: p.update(extra)
-            cache[key]={"products":products,**extra}
-            save_cache()
-            print(f"       {len(products)}개")
-            time.sleep(random.uniform(2,3.5))
-        else:
-            print(f"    → '{kw}' 캐시")
+            cache[key] = {"products": products, "cached_at": today_str, **extra}
+            save_cache(cache)
+            print(f"       {len(products)}개 수집")
+            time.sleep(random.uniform(*CRAWL_DELAY))  # 8~12초 안전 딜레이
 
-    # 1) 계절성
-    print(f"\n{'='*50}\n🌸 [1/7] 계절성 ({sum(len(v) for v in SEASONAL_KW.values())}키워드)\n{'='*50}")
-    for season, kws in SEASONAL_KW.items():
-        print(f"  📅 {season}")
-        for kw in kws: do_crawl(kw,kw,5,{"type":"season","subkey":season,"cat":kw})
+        try: driver.quit()
+        except: pass
+        print("\n🛑 크롤링 완료!")
+    else:
+        print("\n  ✅ 모든 키워드가 7일 이내 캐시! 크롤링 스킵")
 
-    # 2) 트렌드
-    print(f"\n{'='*50}\n🔥 [2/7] 트렌드 ({len(TREND_KW)}키워드)\n{'='*50}")
-    for kw in TREND_KW: do_crawl(kw,kw,5,{"type":"trend","cat":kw})
+    # ─── 네이버 데이터 (매일 갱신) ───
+    print(f"\n{'='*50}")
+    print("📊 네이버 + 구글 데이터 (매일 갱신)")
+    print("="*50)
 
-    # 3) 연령대
-    print(f"\n{'='*50}\n👤 [3/7] 연령대별 ({sum(len(v) for v in AGE_KW.values())}키워드)\n{'='*50}")
-    for age, kw_list in AGE_KW.items():
-        print(f"  👤 {age}")
-        for cat,kw in kw_list: do_crawl(f"age_{age}_{kw}",kw,2,{"type":"age","subkey":age,"cat":cat})
-
-    # 4) 블루오션
-    print(f"\n{'='*50}\n🔵 [4/7] 블루오션 ({len(BLUE_KW)}키워드)\n{'='*50}")
-    for kw in BLUE_KW: do_crawl(f"blue_{kw}",kw,3,{"type":"blue","cat":kw})
-
-    # 5) 카테고리 경쟁도
-    print(f"\n{'='*50}\n📊 [5/7] 카테고리 경쟁도 ({len(CATEGORY_KW)}카테고리)\n{'='*50}")
-    for cat in CATEGORY_KW: do_crawl(f"cat_{cat}",cat,10,{"type":"category","cat":cat})
-
-    try: driver.quit()
-    except: pass
-    print("\n🛑 크롤링 완료!")
-
-    # 6) 네이버 데이터
-    print(f"\n{'='*50}\n📊 [6/7] 네이버 + 구글 데이터\n{'='*50}")
-    nv_trend_data={}; monthly_trends=[]; nv_age_data={}
+    nv_trend_data={}; monthly_trends=[]; blue_naver={}
     if HAS_NAVER:
-        # 트렌드 검색량
         print("  📈 트렌드 검색량...")
         for i in range(0,len(TREND_KW),5):
             d=nv_trend(TREND_KW[i:i+5],3)
@@ -291,11 +298,9 @@ def main():
                         cur,prev=pts[-1]["ratio"],pts[-2]["ratio"]
                         chg=int((cur-prev)/max(prev,1)*100)
                         nv_trend_data[g["title"]]={"vol":int(cur*1000),"change":f"+{chg}%" if chg>=0 else f"{chg}%"}
-                        print(f"    {g['title']}: {int(cur*1000):,} ({'+' if chg>=0 else ''}{chg}%)")
             time.sleep(0.5)
 
-        # 계절성 스코어
-        print("\n  🌸 계절성 스코어...")
+        print("  🌸 계절성 스코어...")
         for season,kws in SEASONAL_KW.items():
             d=nv_trend(kws[:5],24)
             if d.get("results"):
@@ -303,14 +308,11 @@ def main():
                     pts=g.get("data",[])
                     if pts and g["title"] in cache:
                         cur=pts[-1]["ratio"]; peak=max(p["ratio"] for p in pts)
-                        score=min(99,int(cur/max(peak,1)*100))
-                        stage=bass_stage(score)
-                        for p in cache[g["title"]]["products"]: p["score"]=score; p["bass"]=stage
-                        print(f"    {g['title']}: {score}점 ({stage})")
+                        score=min(99,int(cur/max(peak,1)*100)); stage=bass_stage(score)
+                        for p in cache[g["title"]].get("products",[]): p["score"]=score; p["bass"]=stage
             time.sleep(0.5)
 
-        # 월별 차트
-        print("\n  📈 월별 차트...")
+        print("  📈 월별 차트...")
         chart_kw=["선풍기","핫팩","캠핑","패딩","제습기"]
         d=nv_trend(chart_kw,24)
         if d.get("results"):
@@ -327,11 +329,8 @@ def main():
                     vals=monthly.get(m,{}).get(kw,[0])
                     row[kw]=round(sum(vals)/len(vals),1)
                 monthly_trends.append(row)
-            print(f"    ✅ 12개월 차트 생성")
 
-        # 블루오션 검색량
-        print("\n  🔵 블루오션 검색량...")
-        blue_naver={}
+        print("  🔵 블루오션 검색량...")
         for i in range(0,len(BLUE_KW),5):
             d=nv_trend(BLUE_KW[i:i+5],3)
             if d.get("results"):
@@ -340,23 +339,14 @@ def main():
                     if pts: blue_naver[g["title"]]=round(pts[-1]["ratio"],1)
             time.sleep(0.5)
 
-        # 연령대
-        print("\n  👤 연령대 분석...")
-        for age,kw_list in AGE_KW.items():
-            kw=kw_list[0][1]
-            bd=nv_age(kw)
-            if bd: nv_age_data[kw]=bd; print(f"    {kw}: {bd}")
-            time.sleep(0.5)
-    else:
-        blue_naver={}
-
-    # 구글 트렌드
     global_trends = google_trends(GLOBAL_KW_EN, GLOBAL_KW_KR) if HAS_GOOGLE else []
 
-    # 7) products.json 조립
-    print(f"\n{'='*50}\n📦 [7/7] products.json 조립\n{'='*50}")
+    # ─── products.json 조립 ───
+    print(f"\n{'='*50}")
+    print("📦 products.json 조립")
+    print("="*50)
 
-    output={"updated":date.today().isoformat(),"seasons":{},"trending":[],"ageGroups":{},
+    output={"updated":today_str,"seasons":{},"trending":[],"ageGroups":{},
             "priceAnalysis":[],"bestSellers":{"weekly":[],"monthly":[]},
             "sellerRankings":[
                 {"rank":1,"name":"삼성공식스토어","category":"전자기기","monthlySales":"₩48.2억","products":1240,"rating":4.9,"badge":"로켓배송"},
@@ -390,57 +380,50 @@ def main():
                     {"rank":5,"name":"캠핑 LED 랜턴","cat":"아웃도어","margin":"45~60%","delivery":"14~25일","risk":"중간","score":72,"img":"🔦"},
                 ],
             },
-            "monthlyTrends":monthly_trends,
-            "globalTrends":global_trends,
-            "categoryCompetition":[],
-            "blueOcean":[],
-    }
+            "monthlyTrends":monthly_trends,"globalTrends":global_trends,"categoryCompetition":[],"blueOcean":[]}
 
     all_products=[]
 
     # 계절성
     sbuckets={}
-    for kw,d in cache.items():
+    for key,d in cache.items():
         if d.get("type")=="season":
             sk=d["subkey"]
             if sk not in sbuckets: sbuckets[sk]=[]
-            for p in d["products"]:
+            for p in d.get("products",[]):
                 if "score" not in p: p["score"]=50+random.randint(0,30)
-            sbuckets[sk].extend(d["products"]); all_products.extend(d["products"])
+            sbuckets[sk].extend(d.get("products",[])); all_products.extend(d.get("products",[]))
     for season,items in sbuckets.items():
         items.sort(key=lambda x:-x.get("score",0))
         for i,item in enumerate(items[:6],1): item["rank"]=i
         output["seasons"][season]=items[:6]
 
     # 트렌드
-    for kw,d in cache.items():
-        if d.get("type")=="trend":
-            prods=d["products"]; all_products.extend(prods)
+    for kw in TREND_KW:
+        if kw in cache:
+            prods=cache[kw].get("products",[]);  all_products.extend(prods)
             tags=list(set(p["name"].split()[0] for p in prods[:4] if p.get("name")))
             nd=nv_trend_data.get(kw,{})
-            # Bass 단계 판정
             vol=nd.get("vol",sum(p.get("reviews",0) for p in prods)*40)
-            bass = "성숙기" if vol > 20000 else "성장기" if vol > 5000 else "도입기"
-            output["trending"].append({
-                "keyword":kw,"vol":max(vol,1000),
+            bass="성숙기" if vol>20000 else "성장기" if vol>5000 else "도입기"
+            output["trending"].append({"keyword":kw,"vol":max(vol,1000),
                 "change":nd.get("change",prods[0].get("growth","+0%") if prods else "+0%"),
-                "tags":(tags+[kw+" 추천"])[:3],"cat":kw,"bass_stage":bass,
-            })
+                "tags":(tags+[kw+" 추천"])[:3],"cat":kw,"bass_stage":bass})
 
-    # 연령대 (카테고리 분산)
+    # 연령대
     for age in ["10대","20대","30대","40대","50대+"]:
         items=[]; seen=set()
         for key,d in cache.items():
             if d.get("type")=="age" and d.get("subkey")==age:
                 cat=d.get("cat","기타")
                 if cat in seen: continue
-                for p in d["products"][:1]:
+                for p in d.get("products",[])[:1]:
                     p["cat"]=cat; p["trend"]=random.choice(["급상승","상승","유지"])
                     items.append(p); seen.add(cat)
         for i,item in enumerate(items[:8],1): item["rank"]=i
         output["ageGroups"][age]=items[:8]; all_products.extend(items)
 
-    # 가격대 (카테고리별 강세 분석)
+    # 가격대
     price_ranges=[("1만원 이하",0,10000),("1~3만원",10000,30000),("3~5만원",30000,50000),
                   ("5~10만원",50000,100000),("10~30만원",100000,300000),("30만원 이상",300000,99999999)]
     margins=["15~25%","25~40%","30~45%","25~35%","20~30%","15~25%"]
@@ -449,70 +432,53 @@ def main():
         for p in all_products:
             try:
                 pv=int(str(p.get("price","0")).replace(",",""))
-                if lo<=pv<hi:
-                    count+=1
-                    cat=p.get("cat","기타")
-                    cat_counter[cat]+=1
-                    if not top_name and p.get("reviews",0)>0: top_name=p["name"][:15]
+                if lo<=pv<hi: count+=1; cat_counter[p.get("cat","기타")]+=1
+                if not top_name and lo<=pv<hi and p.get("reviews",0)>0: top_name=p["name"][:15]
             except: continue
         best_cat=cat_counter.most_common(1)[0][0] if cat_counter else "전체"
-        output["priceAnalysis"].append({"range":label,"avgSales":max(count*500,1000),
-            "competition":round(10-i*1.3,1),"margin":margins[i],
-            "topItem":top_name or "데이터 수집 중","bestCategory":best_cat})
+        output["priceAnalysis"].append({"range":label,"avgSales":max(count*500,1000),"competition":round(10-i*1.3,1),
+            "margin":margins[i],"topItem":top_name or "수집 중","bestCategory":best_cat})
 
-    # 베스트셀러
+    # 베스트
     best=sorted(all_products,key=lambda x:-x.get("reviews",0))
     sellers=["로켓배송 판매자","공식스토어","쿠팡 직영","마켓플레이스"]
     for i,item in enumerate(best[:10],1):
-        entry={"rank":i,"name":item["name"][:25],"seller":random.choice(sellers),
-               "sales":item.get("reviews",0)*40,"change":item.get("growth","+0%"),
-               "reviews":round(4.5+random.random()*0.4,1),"img":item.get("img","📦"),"url":item.get("url","")}
+        entry={"rank":i,"name":item["name"][:25],"seller":random.choice(sellers),"sales":item.get("reviews",0)*40,
+               "change":item.get("growth","+0%"),"reviews":round(4.5+random.random()*0.4,1),"img":item.get("img","📦"),"url":item.get("url","")}
         output["bestSellers"]["weekly"].append(entry)
         em=entry.copy(); em["sales"]=entry["sales"]*4
         output["bestSellers"]["monthly"].append(em)
 
-    # 블루오션 (실제 크롤링 + 네이버)
+    # 블루오션
     for kw in BLUE_KW:
         ck=f"blue_{kw}"
-        if ck in cache and cache[ck]["products"]:
-            p=cache[ck]["products"][0]
-            rv=p.get("reviews",0); se=max(rv//15,3)
-            sv=blue_naver.get(kw,rv*30)
-            demand=int(sv*100) if isinstance(sv,float) else max(rv*50,2000)
+        if ck in cache and cache[ck].get("products"):
+            p=cache[ck]["products"][0]; rv=p.get("reviews",0); se=max(rv//15,3)
+            sv=blue_naver.get(kw,rv*30); demand=int(sv*100) if isinstance(sv,float) else max(rv*50,2000)
             sc=min(99,int(80+(demand/max(se,1))*0.01))
             output["blueOcean"].append({"rank":0,"name":p["name"][:25],"demand":demand,"sellers":se,
-                "score":min(sc,99),"opp":"최상" if sc>=90 else "우수" if sc>=80 else "양호",
-                "price":p.get("price","0"),"cat":kw})
+                "score":min(sc,99),"opp":"최상" if sc>=90 else "우수" if sc>=80 else "양호","price":p.get("price","0"),"cat":kw})
     output["blueOcean"].sort(key=lambda x:-x["score"])
     for i,item in enumerate(output["blueOcean"][:8],1): item["rank"]=i
     output["blueOcean"]=output["blueOcean"][:8]
 
-    # 카테고리 경쟁도 (HHI 지수)
+    # 카테고리 경쟁도
     for cat in CATEGORY_KW:
         ck=f"cat_{cat}"
-        if ck in cache:
-            prods=cache[ck]["products"]
-            if prods:
-                hhi=calc_hhi(prods)
-                avg_price=0; avg_rv=0; rocket_pct=0
-                prices=[]; reviews=[]
-                for p in prods:
-                    try: prices.append(int(str(p.get("price","0")).replace(",","")))
-                    except: pass
-                    reviews.append(p.get("reviews",0))
-                    if p.get("is_rocket"): rocket_pct+=1
-                avg_price=int(sum(prices)/max(len(prices),1))
-                avg_rv=int(sum(reviews)/max(len(reviews),1))
-                rocket_pct=int(rocket_pct/max(len(prods),1)*100)
-                # HHI 해석
-                if hhi>2500: level="🔴 과점 (진입 어려움)"
-                elif hhi>1500: level="🟡 보통 (주의)"
-                else: level="🟢 경쟁적 (진입 기회)"
-                output["categoryCompetition"].append({
-                    "category":cat,"hhi":hhi,"level":level,
-                    "products":len(prods),"avgPrice":f"{avg_price:,}","avgReviews":avg_rv,
-                    "rocketPct":rocket_pct,"topProduct":prods[0]["name"][:20] if prods else "",
-                })
+        if ck in cache and cache[ck].get("products"):
+            prods=cache[ck]["products"]; hhi=calc_hhi(prods)
+            prices=[]; reviews=[]
+            for p in prods:
+                try: prices.append(int(str(p.get("price","0")).replace(",","")))
+                except: pass
+                reviews.append(p.get("reviews",0))
+            rocket_pct=int(sum(1 for p in prods if p.get("is_rocket"))/max(len(prods),1)*100)
+            if hhi>2500: level="🔴 과점 (진입 어려움)"
+            elif hhi>1500: level="🟡 보통 (주의)"
+            else: level="🟢 경쟁적 (진입 기회)"
+            output["categoryCompetition"].append({"category":cat,"hhi":hhi,"level":level,"products":len(prods),
+                "avgPrice":f"{int(sum(prices)/max(len(prices),1)):,}","avgReviews":int(sum(reviews)/max(len(reviews),1)),
+                "rocketPct":rocket_pct,"topProduct":prods[0]["name"][:20] if prods else ""})
     output["categoryCompetition"].sort(key=lambda x:x["hhi"])
 
     # 저장
@@ -524,15 +490,15 @@ def main():
     print(f"✅ data/products.json 생성 완료!")
     print(f"{'='*55}")
     print(f"🌸 계절성: {sum(len(v) for v in output['seasons'].values())}개")
-    print(f"🔥 트렌드: {len(output['trending'])}개 (Bass 단계 포함)")
-    print(f"👤 연령대: {sum(len(v) for v in output['ageGroups'].values())}개 (카테고리 분산)")
-    print(f"💰 가격대: {len(output['priceAnalysis'])}개 (강세 카테고리 실분석)")
+    print(f"🔥 트렌드: {len(output['trending'])}개")
+    print(f"👤 연령대: {sum(len(v) for v in output['ageGroups'].values())}개")
+    print(f"💰 가격대: {len(output['priceAnalysis'])}개")
     print(f"🏆 베스트: {len(output['bestSellers']['weekly'])}개")
-    print(f"🔵 블루오션: {len(output['blueOcean'])}개 (실제 크롤링)")
+    print(f"🔵 블루오션: {len(output['blueOcean'])}개")
     print(f"📈 월별차트: {len(output.get('monthlyTrends',[]))}개월")
-    print(f"🌐 글로벌: {len(output.get('globalTrends',[]))}개 (구글 트렌드)")
-    print(f"📊 경쟁도: {len(output.get('categoryCompetition',[]))}개 카테고리 (HHI)")
-    print(f"\n👉 git add . && git commit -m \"v5 full update\" && git push")
-    if os.path.exists(cache_file): os.remove(cache_file)
+    print(f"🌐 글로벌: {len(output.get('globalTrends',[]))}개")
+    print(f"📊 경쟁도: {len(output.get('categoryCompetition',[]))}개 카테고리")
+    print(f"\n💡 다음 실행 시: 7일 이내 키워드는 캐시 사용 → 빠르게 완료")
+    print(f"\n👉 git add . && git commit -m \"v6 update\" && git push")
 
 if __name__=="__main__": main()
