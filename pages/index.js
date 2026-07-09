@@ -495,11 +495,42 @@ export default function Home({ data }) {
         {tab === "blue" && <BlueOceanTab blueOcean={data.blueOcean} />}
       </main>
 
-      {/* 푸터 — 쿠팡 파트너스 문구 필수 */}
-      <footer style={{ background: "#1A1B1E", color: "#868E96", padding: "20px 16px", textAlign: "center", fontSize: "11px", lineHeight: 1.8, marginTop: "30px" }}>
-        <div style={{ fontWeight: 700, fontSize: "14px", marginBottom: "4px" }}><span style={{ color: "#339AF0" }}>Market</span><span style={{ color: "#FD7E14" }}>Quant</span></div>
-        <p>이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</p>
-        <p>© 2026 마켓퀀트 · 퀀트 분석 기반 이커머스 트렌드</p>
+      {/* 푸터 */}
+      <footer style={{ background: "#1A1B1E", color: "#868E96", padding: "32px 16px 24px", fontSize: "11px", lineHeight: 1.9, marginTop: "30px" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+
+          {/* 로고 */}
+          <div style={{ textAlign: "center", marginBottom: "16px" }}>
+            <span style={{ fontWeight: 700, fontSize: "16px" }}><span style={{ color: "#339AF0" }}>Market</span><span style={{ color: "#FD7E14" }}>Quant</span></span>
+            <span style={{ color: "#495057", marginLeft: "8px" }}>마켓퀀트</span>
+          </div>
+
+          {/* 분석 방법론 */}
+          <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: "8px", padding: "14px 16px", marginBottom: "16px", textAlign: "left", color: "#ADB5BD" }}>
+            <div style={{ fontWeight: 600, color: "#CED4DA", marginBottom: "6px" }}>분석 방법론</div>
+            <p>상품 데이터: 주요 이커머스 플랫폼 실시간 크롤링 (상품명, 가격, 리뷰 수, 평점, 배송 유형)</p>
+            <p>검색 트렌드: 네이버 데이터랩 API 기반 월별 검색량, 연령대/성별 분석 (최대 2년치 시계열)</p>
+            <p>계절성 스코어: 해당 키워드의 현재 검색지수 ÷ 과거 2년 피크 검색지수 × 100</p>
+            <p>블루오션 스코어: 검색 수요 ÷ 활성 판매자 수 기반 기회 지수</p>
+            <p>추정 판매량: 리뷰 수 × 40 (업계 경험치 기반 역추정)</p>
+          </div>
+
+          {/* 면책/고지 */}
+          <div style={{ textAlign: "center", marginBottom: "12px", color: "#868E96" }}>
+            <p>본 사이트의 데이터는 공개 소스 기반 통계 분석 결과이며, 수집 시기 및 분석 방법에 따라 실제와 차이가 있을 수 있습니다.</p>
+            <p>모든 투자 및 사업 결정은 본인의 판단과 책임 하에 이루어져야 합니다.</p>
+            <p>이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</p>
+          </div>
+
+          {/* 저작권 + 법적 보호 + 연락처 */}
+          <div style={{ textAlign: "center", borderTop: "1px solid #2C2E33", paddingTop: "12px", color: "#495057" }}>
+            <p>© 2026 MarketQuant(마켓퀀트). All rights reserved.</p>
+            <p>본 사이트의 콘텐츠, 데이터, 분석 방법론, 소스 코드 및 디자인은 저작권법에 의해 보호됩니다.</p>
+            <p>무단 복제, 배포, 재가공을 금지하며, 위반 시 관련 법령에 따라 법적 조치를 취할 수 있습니다.</p>
+            <p style={{ marginTop: "8px", color: "#868E96" }}>문의: marketquant.info@gmail.com</p>
+          </div>
+
+        </div>
       </footer>
     </>
   );
