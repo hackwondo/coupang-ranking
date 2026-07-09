@@ -1,0 +1,57 @@
+# EC2에서 크롤링한 데이터를 자동으로 이 레포에 커밋
+# EC2 crontab에서 이 workflow를 trigger합니다.
+#
+# EC2에서 실행할 명령:
+#   curl -X POST \
+#     -H "Authorization: token $GITHUB_TOKEN" \
+#     -H "Accept: application/vnd.github.v3+json" \
+#     https://api.github.com/repos/hackwondo/coupang-ranking/dispatches \
+#     -d '{"event_type":"update-data"}'
+
+name: Update Product Data
+
+on:
+  repository_dispatch:
+    types: [update-data]
+  # 또는 매일 자동 실행 (UTC 18시 = KST 03시)
+  schedule:
+    - cron: '0 18 * * *'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install playwright beautifulsoup4 requests duckdb pandas
+          playwright install chromium
+
+      - name: Run scraping pipeline
+        env:
+          NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
+          NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
+        run: |
+          python pipeline.py --full
+          # pipeline 결과물을 data/products.json으로 내보내기
+          python -c "
+          import json, duckdb
+          conn = duckdb.connect('data/coupang_ranking.duckdb', read_only=True)
+          # ... export logic (pipeline.py의 export_json 함수 호출)
+          conn.close()
+          "
+
+      - name: Commit updated data
+        run: |
+          git config user.name 'GitHub Actions Bot'
+          git config user.email 'actions@github.com'
+          git add data/products.json
+          git diff --staged --quiet || git commit -m "📊 데이터 업데이트 $(date +'%Y-%m-%d %H:%M')"
+          git push
