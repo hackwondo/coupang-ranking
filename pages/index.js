@@ -3,8 +3,8 @@ import Head from "next/head";
 import fs from "fs";
 import path from "path";
 import {
-  LineChart, Line, XAxis, YAxis, Tooltip,
-  ResponsiveContainer, CartesianGrid, Legend,
+  LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip,
+  ResponsiveContainer, CartesianGrid, Legend, Cell,
 } from "recharts";
 import { makeAffiliateLink, makeSearchLink, trackClick } from "../lib/affiliate";
 
@@ -242,12 +242,209 @@ function BlueOceanTab({ blueOcean }) {
   );
 }
 
+// ─── 가격대 분석 탭 ───────────────────────────────
+
+function PriceTab({ priceAnalysis }) {
+  const COLORS = ["#339AF0","#51CF66","#FCC419","#FF922B","#FF6B6B","#CC5DE8"];
+  const chartData = priceAnalysis.map(d => ({ name: d.range, 판매량: d.avgSales, 경쟁강도: Math.round(d.competition * 5000) }));
+
+  return (
+    <>
+      <Insight title="가격대별 골든존 분석">
+        판매량은 높으면서 경쟁은 적당한 가격 구간을 찾아냅니다. 1~3만원대가 충동구매와 마진을 동시에 잡는 스윗스팟입니다.
+      </Insight>
+      <div style={{ background: C.card, borderRadius: "10px", padding: "16px", border: `1px solid ${C.border}`, marginBottom: "16px" }}>
+        <div style={{ fontSize: "14px", fontWeight: 600, marginBottom: "10px" }}>판매량 vs 경쟁강도</div>
+        <ResponsiveContainer width="100%" height={240}>
+          <BarChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#F1F3F5" />
+            <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+            <YAxis tick={{ fontSize: 11 }} />
+            <Tooltip formatter={(v, n) => n === "경쟁강도" ? (v / 5000).toFixed(1) + "점" : v.toLocaleString() + "건"} />
+            <Legend wrapperStyle={{ fontSize: 11 }} />
+            <Bar dataKey="판매량" fill="#339AF0" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="경쟁강도" fill="#FF922B" radius={[4, 4, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "10px" }}>
+        {priceAnalysis.map((d, i) => (
+          <div key={i} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: "10px", padding: "16px", borderLeft: `5px solid ${COLORS[i]}` }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ fontSize: "15px", fontWeight: 700, color: C.text }}>{d.range}</div>
+              <span style={{ background: COLORS[i] + "18", color: COLORS[i], padding: "3px 10px", borderRadius: "10px", fontSize: "12px", fontWeight: 700 }}>마진 {d.margin}</span>
+            </div>
+            <div style={{ fontSize: "12px", color: C.sub, marginTop: "10px", lineHeight: 1.7 }}>
+              <div>📦 월 평균 판매: <b style={{ color: C.text }}>{d.avgSales.toLocaleString()}건</b></div>
+              <div>⚔️ 경쟁 강도: <b>{d.competition}/10</b></div>
+              <div>🏆 대표 히트상품: <b>{d.topItem}</b></div>
+              <div>📂 강세 카테고리: {d.bestCategory}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+// ─── 베스트&랭킹 탭 ──────────────────────────────
+
+function BestTab({ bestSellers, sellerRankings }) {
+  const [period, setPeriod] = useState("weekly");
+  const [view, setView] = useState("products");
+  const items = bestSellers[period] || [];
+
+  return (
+    <>
+      <Insight title="베스트셀러 & 판매자 랭킹">
+        쿠팡에서 가장 많이 팔린 상품과 매출 TOP 판매자입니다. 베스트셀러를 직접 팔기보다, 해당 상품의 보완재나 액세서리를 노리세요.
+      </Insight>
+      <div style={{ display: "flex", gap: "8px", marginBottom: "14px", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: "4px" }}>
+          {[{ k: "weekly", l: "주간" }, { k: "monthly", l: "월간" }].map(p => (
+            <button key={p.k} onClick={() => setPeriod(p.k)} style={{
+              padding: "6px 14px", borderRadius: "8px", fontSize: "12px", fontWeight: 600, cursor: "pointer",
+              background: period === p.k ? C.text : "#F1F3F5", color: period === p.k ? "#FFF" : C.sub, border: "none",
+            }}>{p.l}</button>
+          ))}
+        </div>
+        <div style={{ display: "flex", gap: "4px", marginLeft: "auto" }}>
+          {[{ k: "products", l: "🛍️ 상품" }, { k: "sellers", l: "🏪 판매자" }].map(v => (
+            <button key={v.k} onClick={() => setView(v.k)} style={{
+              padding: "6px 14px", borderRadius: "8px", fontSize: "12px", fontWeight: 600, cursor: "pointer",
+              background: view === v.k ? C.primary : "#F1F3F5", color: view === v.k ? "#FFF" : C.sub, border: "none",
+            }}>{v.l}</button>
+          ))}
+        </div>
+      </div>
+
+      {view === "products" ? (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "10px" }}>
+          {items.map((item, i) => {
+            const link = makeAffiliateLink(item.url || "", "best");
+            return (
+              <div key={i} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: "10px", padding: "14px" }}>
+                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                  <span style={{ fontSize: "24px" }}>{item.img}</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: "14px", fontWeight: 600, color: C.text }}>{item.rank}. {item.name}</div>
+                    <div style={{ fontSize: "11px", color: C.sub }}>판매자: {item.seller}</div>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <div style={{ fontSize: "13px", fontWeight: 700, color: C.green }}>{item.change}</div>
+                    <div style={{ fontSize: "11px", color: C.sub }}>⭐ {item.reviews}</div>
+                  </div>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "10px", paddingTop: "8px", borderTop: `1px solid ${C.border}` }}>
+                  <span style={{ fontSize: "11px", color: C.sub }}>{period === "weekly" ? "주간" : "월간"} {item.sales.toLocaleString()}건</span>
+                  <a href={link} target="_blank" rel="noopener noreferrer nofollow" onClick={() => trackClick("best", item.name)}
+                    style={{ background: C.primary, color: "#FFF", fontSize: "12px", fontWeight: 600, padding: "5px 12px", borderRadius: "6px", textDecoration: "none" }}
+                  >쿠팡에서 보기 →</a>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div>
+          {sellerRankings.map((s, i) => (
+            <div key={i} style={{
+              background: C.card, border: `1px solid ${C.border}`, borderRadius: "10px", padding: "14px", marginBottom: "8px",
+              display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "8px",
+            }}>
+              <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                <div style={{
+                  width: "32px", height: "32px", borderRadius: "50%",
+                  background: i < 3 ? "#FFF3BF" : "#F1F3F5",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: "14px", fontWeight: 700, color: i < 3 ? "#E67700" : C.sub,
+                }}>{s.rank}</div>
+                <div>
+                  <div style={{ fontSize: "14px", fontWeight: 600, color: C.text }}>{s.name}</div>
+                  <div style={{ fontSize: "11px", color: C.sub }}>{s.category} · 상품 {s.products.toLocaleString()}개</div>
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                <span style={{ background: "#D3F9D8", color: C.green, padding: "3px 10px", borderRadius: "10px", fontSize: "11px", fontWeight: 600 }}>{s.badge}</span>
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ fontSize: "14px", fontWeight: 700, color: C.text }}>{s.monthlySales}</div>
+                  <div style={{ fontSize: "11px", color: C.sub }}>⭐ {s.rating}</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
+// ─── 해외소싱 탭 ──────────────────────────────────
+
+function GlobalTab({ globalSourcing }) {
+  const countries = Object.keys(globalSourcing);
+  const [sel, setSel] = useState(countries[0]);
+  const items = globalSourcing[sel] || [];
+
+  return (
+    <>
+      <Insight title="해외소싱 핫 아이템 — 국가별 가이드">
+        중국은 마진이 높지만 품질 검수 필수. 일본은 품질 안정적이나 마진 낮음. 미국은 건강식품/프리미엄에 강합니다.
+        소싱 스코어 85점 이상이 추천 아이템입니다.
+      </Insight>
+      <div style={{ display: "flex", gap: "6px", marginBottom: "14px", flexWrap: "wrap" }}>
+        {countries.map(c => (
+          <button key={c} onClick={() => setSel(c)} style={{
+            padding: "7px 16px", borderRadius: "18px", fontSize: "13px", cursor: "pointer",
+            fontWeight: sel === c ? 700 : 500,
+            background: sel === c ? "#D3F9D8" : C.card,
+            color: sel === c ? C.green : C.sub,
+            border: sel === c ? `2px solid ${C.green}` : `1px solid ${C.border}`,
+          }}>{c}</button>
+        ))}
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "10px" }}>
+        {items.map((item, i) => {
+          const sc = item.score >= 85 ? C.green : item.score >= 75 ? C.blue : C.sub;
+          const link = makeSearchLink(item.name, "global");
+          return (
+            <div key={i} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: "10px", padding: "14px" }}>
+              <div style={{ display: "flex", gap: "10px", alignItems: "flex-start" }}>
+                <span style={{ fontSize: "24px" }}>{item.img}</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: "14px", fontWeight: 600, color: C.text }}>{item.rank}. {item.name}</div>
+                  <div style={{ fontSize: "12px", color: C.sub, marginTop: "2px" }}>{item.cat}</div>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ fontSize: "18px", fontWeight: 700, color: sc }}>{item.score}</div>
+                  <div style={{ fontSize: "11px", color: C.green, fontWeight: 600 }}>{item.margin}</div>
+                </div>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "10px", paddingTop: "8px", borderTop: `1px solid ${C.border}` }}>
+                <div style={{ fontSize: "11px", color: C.sub }}>
+                  📦 {item.delivery} · ⚠️ 위험도 <b style={{ color: item.risk === "높음" ? C.red : item.risk === "중간" ? "#E67700" : C.green }}>{item.risk}</b>
+                </div>
+                <a href={link} target="_blank" rel="noopener noreferrer nofollow" onClick={() => trackClick("global", item.name)}
+                  style={{ background: C.primary, color: "#FFF", fontSize: "12px", fontWeight: 600, padding: "5px 12px", borderRadius: "6px", textDecoration: "none" }}
+                >쿠팡에서 보기 →</a>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </>
+  );
+}
+
 // ─── 메인 페이지 ──────────────────────────────────
 
 const TABS = [
   { id: "trend", label: "트렌드", icon: "🔥" },
   { id: "season", label: "계절성", icon: "🌸" },
   { id: "age", label: "연령대", icon: "👤" },
+  { id: "price", label: "가격대", icon: "💰" },
+  { id: "best", label: "베스트&랭킹", icon: "🏆" },
+  { id: "global", label: "해외소싱", icon: "🌏" },
   { id: "blue", label: "블루오션", icon: "🔵" },
 ];
 
@@ -302,6 +499,9 @@ export default function Home({ data }) {
         {tab === "trend" && <TrendTab trending={data.trending} />}
         {tab === "season" && <SeasonTab seasons={data.seasons} />}
         {tab === "age" && <AgeTab ageGroups={data.ageGroups} />}
+        {tab === "price" && <PriceTab priceAnalysis={data.priceAnalysis} />}
+        {tab === "best" && <BestTab bestSellers={data.bestSellers} sellerRankings={data.sellerRankings} />}
+        {tab === "global" && <GlobalTab globalSourcing={data.globalSourcing} />}
         {tab === "blue" && <BlueOceanTab blueOcean={data.blueOcean} />}
       </main>
 

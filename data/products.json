@@ -2,87 +2,1164 @@
   "updated": "2026-07-09",
   "seasons": {
     "🌸 봄": [
-      {"rank":1,"name":"접이식 캠핑의자","cat":"아웃도어","price":"29,900","growth":"+142%","score":94,"img":"🏕️","reviews":1205,"url":"https://www.coupang.com/np/search?q=접이식+캠핑의자"},
-      {"rank":2,"name":"미세먼지 마스크 KF94","cat":"건강","price":"15,900","growth":"+89%","score":91,"img":"😷","reviews":3420,"url":"https://www.coupang.com/np/search?q=KF94+마스크"},
-      {"rank":3,"name":"봄 가디건 여성","cat":"패션","price":"24,900","growth":"+76%","score":88,"img":"👚","reviews":890,"url":"https://www.coupang.com/np/search?q=봄+가디건+여성"},
-      {"rank":4,"name":"차량용 공기청정기","cat":"자동차","price":"45,000","growth":"+68%","score":85,"img":"🚗","reviews":2100,"url":"https://www.coupang.com/np/search?q=차량용+공기청정기"},
-      {"rank":5,"name":"피크닉 매트 대형","cat":"아웃도어","price":"19,900","growth":"+95%","score":80,"img":"🧺","reviews":760,"url":"https://www.coupang.com/np/search?q=피크닉매트"}
+      {
+        "rank": 1,
+        "name": "그린나래 국내생산 MB필터 일회용마스크, 50매입, 4개, 화이트",
+        "price": "76",
+        "growth": "+30%",
+        "reviews": 8850,
+        "is_rocket": true,
+        "img": "😷",
+        "url": "https://www.coupang.com/np/search?q=미세먼지마스크",
+        "score": 99,
+        "cat": "미세먼지마스크"
+      },
+      {
+        "rank": 2,
+        "name": "엠에프 황사 방역 마스크 대형 KF94 고리형, 50개입, 2개, 백색",
+        "price": "239",
+        "growth": "+40%",
+        "reviews": 14536,
+        "is_rocket": true,
+        "img": "😷",
+        "url": "https://www.coupang.com/np/search?q=미세먼지마스크",
+        "score": 99,
+        "cat": "미세먼지마스크"
+      },
+      {
+        "rank": 3,
+        "name": "스마티 국내산 KF94 숨쉬기 편한 새부리형 마스크 대형, 1개, 화이트, 100매",
+        "price": "59",
+        "growth": "+45%",
+        "reviews": 17531,
+        "is_rocket": false,
+        "img": "😷",
+        "url": "https://www.coupang.com/np/search?q=미세먼지마스크",
+        "score": 99,
+        "cat": "미세먼지마스크"
+      },
+      {
+        "rank": 4,
+        "name": "탐사 KF94 새부리형 데일리 마스크 대형, 100개입, 1개, 블랙",
+        "price": "160",
+        "growth": "+23%",
+        "reviews": 20365,
+        "is_rocket": true,
+        "img": "😷",
+        "url": "https://www.coupang.com/np/search?q=미세먼지마스크",
+        "score": 99,
+        "cat": "미세먼지마스크"
+      },
+      {
+        "rank": 5,
+        "name": "코멧 KF94 데일리 새부리형 보건방역 마스크 대형 와이드핏, 5개입, 20개, 화이트",
+        "price": "200",
+        "growth": "+30%",
+        "reviews": 124163,
+        "is_rocket": true,
+        "img": "😷",
+        "url": "https://www.coupang.com/np/search?q=미세먼지마스크",
+        "score": 99,
+        "cat": "미세먼지마스크"
+      }
     ],
     "☀️ 여름": [
-      {"rank":1,"name":"휴대용 목선풍기 3세대","cat":"가전","price":"15,900","growth":"+215%","score":98,"img":"🌀","reviews":8200,"url":"https://www.coupang.com/np/search?q=휴대용+선풍기"},
-      {"rank":2,"name":"래쉬가드 세트 UV차단","cat":"스포츠","price":"29,900","growth":"+178%","score":95,"img":"🏄","reviews":4500,"url":"https://www.coupang.com/np/search?q=래쉬가드+세트"},
-      {"rank":3,"name":"아이스박스 28L 캠핑용","cat":"아웃도어","price":"39,900","growth":"+156%","score":92,"img":"🧊","reviews":3200,"url":"https://www.coupang.com/np/search?q=아이스박스+28L"},
-      {"rank":4,"name":"자외선차단제 SPF50+","cat":"뷰티","price":"18,500","growth":"+134%","score":90,"img":"☀️","reviews":6100,"url":"https://www.coupang.com/np/search?q=자외선차단제+SPF50"},
-      {"rank":5,"name":"모기퇴치 팔찌 천연성분","cat":"생활","price":"8,900","growth":"+198%","score":87,"img":"🦟","reviews":2800,"url":"https://www.coupang.com/np/search?q=모기퇴치+팔찌"}
+      {
+        "rank": 1,
+        "name": "올리빙 도트 캠핑용 아이스박스, 모스그린, 25L",
+        "price": "30,330",
+        "growth": "+57%",
+        "reviews": 20578,
+        "is_rocket": true,
+        "img": "🏕️",
+        "url": "https://www.coupang.com/np/search?q=아이스박스",
+        "score": 99,
+        "cat": "아이스박스"
+      },
+      {
+        "rank": 2,
+        "name": "더페이스샵 파워 롱래스팅 선크림 SPF50+ PA+++, 80ml, 2개",
+        "price": "3,000",
+        "growth": "+40%",
+        "reviews": 13008,
+        "is_rocket": true,
+        "img": "📦",
+        "url": "https://www.coupang.com/np/search?q=자외선차단제",
+        "score": 99,
+        "cat": "자외선차단제"
+      },
+      {
+        "rank": 3,
+        "name": "New 대형냉각패드 위니쿨 급속냉각 휴대용 목 넥 선풍기 BLDC 대용량5200mAh, 클래식화이트, 1개, W1026",
+        "price": "58,600",
+        "growth": "+34%",
+        "reviews": 3569,
+        "is_rocket": true,
+        "img": "🌀",
+        "url": "https://www.coupang.com/np/search?q=선풍기",
+        "score": 95,
+        "cat": "선풍기"
+      },
+      {
+        "rank": 4,
+        "name": "코멧 테이블 아이스박스, 네이비, 13L",
+        "price": "14,490",
+        "growth": "+32%",
+        "reviews": 3502,
+        "is_rocket": true,
+        "img": "🧊",
+        "url": "https://www.coupang.com/np/search?q=아이스박스",
+        "score": 94,
+        "cat": "아이스박스"
+      },
+      {
+        "rank": 5,
+        "name": "피지오겔 데일리 모이스쳐 UV 패밀리 썬 로션 SPF50+ PA+++, 100ml, 1개",
+        "price": "1,498",
+        "growth": "+57%",
+        "reviews": 2613,
+        "is_rocket": true,
+        "img": "📦",
+        "url": "https://www.coupang.com/np/search?q=자외선차단제",
+        "score": 93,
+        "cat": "자외선차단제"
+      }
     ],
     "🍁 가을": [
-      {"rank":1,"name":"김장매트 특대형","cat":"주방","price":"12,900","growth":"+320%","score":96,"img":"🥬","reviews":5400,"url":"https://www.coupang.com/np/search?q=김장매트"},
-      {"rank":2,"name":"가을 트렌치코트","cat":"패션","price":"59,900","growth":"+87%","score":89,"img":"🧥","reviews":1200,"url":"https://www.coupang.com/np/search?q=트렌치코트"},
-      {"rank":3,"name":"보온텀블러 500ml","cat":"주방","price":"22,000","growth":"+124%","score":86,"img":"☕","reviews":3800,"url":"https://www.coupang.com/np/search?q=보온텀블러"},
-      {"rank":4,"name":"가습기 초음파 대용량","cat":"가전","price":"35,000","growth":"+94%","score":79,"img":"💧","reviews":2900,"url":"https://www.coupang.com/np/search?q=가습기+초음파"},
-      {"rank":5,"name":"핫초코 스틱 30개입","cat":"식품","price":"14,900","growth":"+78%","score":76,"img":"🍫","reviews":1800,"url":"https://www.coupang.com/np/search?q=핫초코+스틱"}
+      {
+        "rank": 1,
+        "name": "깨끗한데이 국산 스마일 무봉제 다용도 김장매트, 1개",
+        "price": "10,150",
+        "growth": "+26%",
+        "reviews": 6261,
+        "is_rocket": true,
+        "img": "🧺",
+        "url": "https://www.coupang.com/np/search?q=김장매트",
+        "score": 99,
+        "cat": "김장매트"
+      },
+      {
+        "rank": 2,
+        "name": "깨끗한데이 국산 퓨어 GB 김장매트, 1개",
+        "price": "9,760",
+        "growth": "",
+        "reviews": 9532,
+        "is_rocket": true,
+        "img": "🧺",
+        "url": "https://www.coupang.com/np/search?q=김장매트",
+        "score": 99,
+        "cat": "김장매트"
+      },
+      {
+        "rank": 3,
+        "name": "코멧 진공 스테인리스 텀블러 + 손잡이 + 빨대뚜껑 + 빨대 + 빨대솔, 블랙, 900ml, 1세트",
+        "price": "9,690",
+        "growth": "+37%",
+        "reviews": 18462,
+        "is_rocket": true,
+        "img": "☕",
+        "url": "https://www.coupang.com/np/search?q=보온텀블러",
+        "score": 99,
+        "cat": "보온텀블러"
+      },
+      {
+        "rank": 4,
+        "name": "Rotima 대용량 초음파 가습기 4L 무소음 무드등 간편 통세척 사무실 탁상용 가정용 가습기, 화이트, J6",
+        "price": "26,900",
+        "growth": "+86%",
+        "reviews": 4020,
+        "is_rocket": true,
+        "img": "💧",
+        "url": "https://www.coupang.com/np/search?q=가습기",
+        "score": 99,
+        "cat": "가습기"
+      },
+      {
+        "rank": 5,
+        "name": "FASEN 텀블러 1.2리터 독일 304 스텐리스 텀블러 이중 진공 보온보냉 차량용 캠핑용 컵 텀블러 머그컵 커피잔 텀블러 대용량 + 빨대 포함, 1개, 1200ml, 그레이",
+        "price": "14,830",
+        "growth": "+21%",
+        "reviews": 2827,
+        "is_rocket": true,
+        "img": "🏕️",
+        "url": "https://www.coupang.com/np/search?q=보온텀블러",
+        "score": 84,
+        "cat": "보온텀블러"
+      }
     ],
     "❄️ 겨울": [
-      {"rank":1,"name":"충전식 손난로 보조배터리","cat":"생활","price":"12,900","growth":"+287%","score":99,"img":"🔥","reviews":9100,"url":"https://www.coupang.com/np/search?q=충전식+손난로"},
-      {"rank":2,"name":"경량 롱패딩 여성/남성","cat":"패션","price":"79,900","growth":"+156%","score":96,"img":"🧥","reviews":4200,"url":"https://www.coupang.com/np/search?q=경량+롱패딩"},
-      {"rank":3,"name":"온수매트 퀸사이즈","cat":"가전","price":"89,000","growth":"+198%","score":93,"img":"🛏️","reviews":5600,"url":"https://www.coupang.com/np/search?q=온수매트+퀸"},
-      {"rank":4,"name":"핫팩 100개입 대용량","cat":"생활","price":"24,900","growth":"+245%","score":90,"img":"♨️","reviews":7200,"url":"https://www.coupang.com/np/search?q=핫팩+100개"},
-      {"rank":5,"name":"기모레깅스 여성 겨울","cat":"패션","price":"14,900","growth":"+134%","score":87,"img":"👖","reviews":3400,"url":"https://www.coupang.com/np/search?q=기모레깅스"}
+      {
+        "rank": 1,
+        "name": "HanilMedical 프리미엄 워셔블 온수매트 자전거, 싱글(100 x 200 cm)",
+        "price": "109,000",
+        "growth": "+50%",
+        "reviews": 4756,
+        "is_rocket": true,
+        "img": "🧺",
+        "url": "https://www.coupang.com/np/search?q=온수매트",
+        "score": 99,
+        "cat": "온수매트"
+      },
+      {
+        "rank": 2,
+        "name": "핫앤핫 핫팩, 3개",
+        "price": "427",
+        "growth": "+35%",
+        "reviews": 26572,
+        "is_rocket": false,
+        "img": "♨️",
+        "url": "https://www.coupang.com/np/search?q=핫팩",
+        "score": 99,
+        "cat": "핫팩"
+      },
+      {
+        "rank": 3,
+        "name": "마이핫 보온대 160g, 10개",
+        "price": "80",
+        "growth": "+55%",
+        "reviews": 18176,
+        "is_rocket": false,
+        "img": "📦",
+        "url": "https://www.coupang.com/np/search?q=핫팩",
+        "score": 99,
+        "cat": "핫팩"
+      },
+      {
+        "rank": 4,
+        "name": "탐사 국내 생산 포켓용 핫팩 90g, 50개",
+        "price": "338",
+        "growth": "+56%",
+        "reviews": 114803,
+        "is_rocket": true,
+        "img": "♨️",
+        "url": "https://www.coupang.com/np/search?q=핫팩",
+        "score": 99,
+        "cat": "핫팩"
+      },
+      {
+        "rank": 5,
+        "name": "충성 포켓용 핫팩 대형 160g, 30개",
+        "price": "570",
+        "growth": "+42%",
+        "reviews": 19923,
+        "is_rocket": true,
+        "img": "♨️",
+        "url": "https://www.coupang.com/np/search?q=핫팩",
+        "score": 99,
+        "cat": "핫팩"
+      }
     ],
     "🌧️ 장마": [
-      {"rank":1,"name":"자동 3단 우산 대형","cat":"패션잡화","price":"15,900","growth":"+412%","score":97,"img":"☂️","reviews":4500,"url":"https://www.coupang.com/np/search?q=자동+3단+우산"},
-      {"rank":2,"name":"제습제 대용량 습기제거","cat":"생활","price":"9,900","growth":"+267%","score":92,"img":"💧","reviews":6200,"url":"https://www.coupang.com/np/search?q=제습제+대용량"},
-      {"rank":3,"name":"방수 신발커버","cat":"패션잡화","price":"8,900","growth":"+356%","score":89,"img":"👟","reviews":2100,"url":"https://www.coupang.com/np/search?q=방수+신발커버"},
-      {"rank":4,"name":"빨래건조대 실내 대형","cat":"생활","price":"29,900","growth":"+145%","score":84,"img":"👕","reviews":3400,"url":"https://www.coupang.com/np/search?q=빨래건조대+실내"},
-      {"rank":5,"name":"곰팡이 제거제 욕실용","cat":"생활","price":"11,500","growth":"+189%","score":80,"img":"🧴","reviews":4800,"url":"https://www.coupang.com/np/search?q=곰팡이+제거제"}
+      {
+        "rank": 1,
+        "name": "아머렉스 UV자외선차단 3단자동우산 접이식 암막 우양산 자동 3단 우산",
+        "price": "9,900",
+        "growth": "+60%",
+        "reviews": 12822,
+        "is_rocket": true,
+        "img": "☀️",
+        "url": "https://www.coupang.com/np/search?q=우산",
+        "score": 99,
+        "cat": "우산"
+      },
+      {
+        "rank": 2,
+        "name": "코멧 홈 접이식 대형 빨래건조대, 그레이, 1개",
+        "price": "15,890",
+        "growth": "+33%",
+        "reviews": 17670,
+        "is_rocket": true,
+        "img": "👕",
+        "url": "https://www.coupang.com/np/search?q=빨래건조대",
+        "score": 99,
+        "cat": "빨래건조대"
+      },
+      {
+        "rank": 3,
+        "name": "코멧 국내생산 홈 접이식 빨래건조대, 화이트",
+        "price": "14,690",
+        "growth": "+38%",
+        "reviews": 12206,
+        "is_rocket": true,
+        "img": "👕",
+        "url": "https://www.coupang.com/np/search?q=빨래건조대",
+        "score": 99,
+        "cat": "빨래건조대"
+      },
+      {
+        "rank": 4,
+        "name": "FASEN 3단자동양산 접이식 UV자외선차단 휴대용 원터치 암막우양산 튼튼한 자동 3단 우산",
+        "price": "6,900",
+        "growth": "+76%",
+        "reviews": 1076,
+        "is_rocket": true,
+        "img": "☀️",
+        "url": "https://www.coupang.com/np/search?q=우산",
+        "score": 83,
+        "cat": "우산"
+      },
+      {
+        "rank": 5,
+        "name": "FANOBO 제습기 화장실제습기 저소음 미니제습기 대용량 4계절겸용 자동건조, 화이트",
+        "price": "39,800",
+        "growth": "+55%",
+        "reviews": 1477,
+        "is_rocket": true,
+        "img": "💧",
+        "url": "https://www.coupang.com/np/search?q=제습기",
+        "score": 81,
+        "cat": "제습기"
+      }
     ]
   },
   "trending": [
-    {"keyword":"닌텐도 스위치2","vol":482000,"change":"+1,240%","tags":["스위치2 케이스","스위치2 게임","스위치2 필름"],"cat":"전자기기"},
-    {"keyword":"장마 제습기","vol":156000,"change":"+890%","tags":["제습제","빨래건조대","곰팡이제거"],"cat":"가전/생활"},
-    {"keyword":"여름 래쉬가드","vol":124000,"change":"+670%","tags":["수영복","아쿠아슈즈","방수팩"],"cat":"패션"},
-    {"keyword":"다이어트 보조제","vol":98000,"change":"+340%","tags":["가르시니아","프로틴","식단관리"],"cat":"건강"},
-    {"keyword":"캠핑 타프","vol":87000,"change":"+280%","tags":["캠핑의자","화로대","캠핑테이블"],"cat":"아웃도어"},
-    {"keyword":"무선이어폰 가성비","vol":76000,"change":"+120%","tags":["QCY","갤럭시 버즈 FE","샤오미"],"cat":"전자기기"}
+    {
+      "keyword": "무선이어폰",
+      "vol": 2984680,
+      "change": "+34%",
+      "tags": [
+        "아이리버 오픈형",
+        "샥즈 오픈핏",
+        "KONLI 노이즈"
+      ],
+      "cat": "무선이어폰"
+    },
+    {
+      "keyword": "로봇청소기",
+      "vol": 253720,
+      "change": "+42%",
+      "tags": [
+        "LG전자 코드제로",
+        "LG전자 RONi",
+        "틴도우 스마트"
+      ],
+      "cat": "로봇청소기"
+    },
+    {
+      "keyword": "에어프라이어",
+      "vol": 161600,
+      "change": "+50%",
+      "tags": [
+        "마스터그릴 5세대",
+        "닌자 크리스피",
+        "눕눕 오븐형"
+      ],
+      "cat": "에어프라이어"
+    },
+    {
+      "keyword": "닌텐도스위치",
+      "vol": 51640,
+      "change": "",
+      "tags": [
+        "닌텐도 스위치",
+        "Havos 가정용게임기",
+        "닌텐도스위치신형배터리개선판 국내정식발매"
+      ],
+      "cat": "닌텐도스위치"
+    },
+    {
+      "keyword": "프로틴",
+      "vol": 1012320,
+      "change": "+22%",
+      "tags": [
+        "마이프로틴 임팩트",
+        "테이크핏 몬스터",
+        "프로틴스토리 맛있는"
+      ],
+      "cat": "프로틴"
+    },
+    {
+      "keyword": "폰케이스",
+      "vol": 6426680,
+      "change": "+33%",
+      "tags": [
+        "빅스킷 맥세이프",
+        "아이엔조이 슬림",
+        "신지모루 에어클로"
+      ],
+      "cat": "폰케이스"
+    }
   ],
   "ageGroups": {
     "10대": [
-      {"rank":1,"name":"K-POP 포토카드 바인더","cat":"문구","price":"8,900","trend":"급상승","img":"📸","reviews":4200,"url":"https://www.coupang.com/np/search?q=포토카드+바인더"},
-      {"rank":2,"name":"무선 이어버드 가성비","cat":"전자기기","price":"29,900","trend":"유지","img":"🎧","reviews":3800,"url":"https://www.coupang.com/np/search?q=무선이어버드+가성비"},
-      {"rank":3,"name":"캐릭터 폰케이스","cat":"디지털","price":"12,900","trend":"상승","img":"📱","reviews":2500,"url":"https://www.coupang.com/np/search?q=캐릭터+폰케이스"},
-      {"rank":4,"name":"다꾸 스티커 세트 100장","cat":"문구","price":"5,900","trend":"급상승","img":"✏️","reviews":5100,"url":"https://www.coupang.com/np/search?q=다꾸+스티커+세트"}
+      {
+        "rank": 1,
+        "name": "하루공작소 마카롱 6공 바인더 A6 속지 포함 포카앨범 다이어리, 블라썸 핑크, 30매",
+        "price": "15,900",
+        "growth": "+35%",
+        "reviews": 43,
+        "is_rocket": false,
+        "img": "📦",
+        "url": "https://www.coupang.com/np/search?q=포토카드바인더",
+        "score": 60,
+        "cat": "포토카드바인더",
+        "trend": "상승"
+      },
+      {
+        "rank": 2,
+        "name": "리빙미 포토카드 2단 콜렉트북 포카 앨범 바인더 하트 커버 굿즈 보관 수납 속지 포함, 64매, 2. COLLECT핑크",
+        "price": "2,500",
+        "growth": "",
+        "reviews": 2,
+        "is_rocket": false,
+        "img": "📸",
+        "url": "https://www.coupang.com/np/search?q=포토카드바인더",
+        "score": 50,
+        "cat": "포토카드바인더",
+        "trend": "상승"
+      },
+      {
+        "rank": 3,
+        "name": "아이코닉 모멘트 포토카드 앨범 4단, 01Lavender, 40매",
+        "price": "7,900",
+        "growth": "+21%",
+        "reviews": 1576,
+        "is_rocket": true,
+        "img": "📸",
+        "url": "https://www.coupang.com/np/search?q=포토카드바인더",
+        "score": 72,
+        "cat": "포토카드바인더",
+        "trend": "상승"
+      },
+      {
+        "rank": 4,
+        "name": "리코즈 아이돌 폴꾸 사진 보관 포토카드 앨범, 160매",
+        "price": "5,900",
+        "growth": "+50%",
+        "reviews": 137,
+        "is_rocket": true,
+        "img": "📸",
+        "url": "https://www.coupang.com/np/search?q=포토카드바인더",
+        "score": 66,
+        "cat": "포토카드바인더",
+        "trend": "급상승"
+      }
     ],
     "20대": [
-      {"rank":1,"name":"레티놀 세럼 고농축","cat":"뷰티","price":"24,900","trend":"급상승","img":"✨","reviews":5600,"url":"https://www.coupang.com/np/search?q=레티놀+세럼"},
-      {"rank":2,"name":"에어프라이어 5.5L","cat":"주방가전","price":"59,900","trend":"유지","img":"🍟","reviews":8200,"url":"https://www.coupang.com/np/search?q=에어프라이어+5.5L"},
-      {"rank":3,"name":"프로틴 쉐이크 초코맛","cat":"건강","price":"34,900","trend":"급상승","img":"💪","reviews":3900,"url":"https://www.coupang.com/np/search?q=프로틴+쉐이크"},
-      {"rank":4,"name":"미니 빔프로젝터 FHD","cat":"전자기기","price":"129,000","trend":"상승","img":"📽️","reviews":1800,"url":"https://www.coupang.com/np/search?q=미니+빔프로젝터"}
+      {
+        "rank": 1,
+        "name": "닥터지 블랙 스네일 레티놀 콜라겐 세럼 인텐스, 30ml, 1개",
+        "price": "5,977",
+        "growth": "+47%",
+        "reviews": 335,
+        "is_rocket": true,
+        "img": "✨",
+        "url": "https://www.coupang.com/np/search?q=레티놀세럼",
+        "score": 67,
+        "cat": "레티놀세럼",
+        "trend": "상승"
+      },
+      {
+        "rank": 2,
+        "name": "ELT 비타유스 비타민C 기미 잡티 항산화 투명광채 토닝세럼 플러스, 1개, 50ml",
+        "price": "5,400",
+        "growth": "+20%",
+        "reviews": 1468,
+        "is_rocket": true,
+        "img": "✨",
+        "url": "https://www.coupang.com/np/search?q=레티놀세럼",
+        "score": 70,
+        "cat": "레티놀세럼",
+        "trend": "급상승"
+      },
+      {
+        "rank": 3,
+        "name": "디오디너리 레티놀 0.2% 인 스쿠알란 세럼, 30ml, 1개",
+        "price": "4,100",
+        "growth": "",
+        "reviews": 1946,
+        "is_rocket": true,
+        "img": "✨",
+        "url": "https://www.coupang.com/np/search?q=레티놀세럼",
+        "score": 69,
+        "cat": "레티놀세럼",
+        "trend": "상승"
+      },
+      {
+        "rank": 4,
+        "name": "이니스프리 레티놀 시카 흔적 앰플, 30ml, 2개",
+        "price": "4,735",
+        "growth": "+64%",
+        "reviews": 12980,
+        "is_rocket": true,
+        "img": "📦",
+        "url": "https://www.coupang.com/np/search?q=레티놀세럼",
+        "score": 99,
+        "cat": "레티놀세럼",
+        "trend": "유지"
+      }
     ],
     "30대": [
-      {"rank":1,"name":"유아 물티슈 캡형 80매x10","cat":"유아","price":"12,900","trend":"유지","img":"👶","reviews":12400,"url":"https://www.coupang.com/np/search?q=유아+물티슈+캡형"},
-      {"rank":2,"name":"로봇청소기 물걸레","cat":"가전","price":"259,000","trend":"상승","img":"🤖","reviews":5100,"url":"https://www.coupang.com/np/search?q=로봇청소기+물걸레"},
-      {"rank":3,"name":"키즈 비타민D 젤리","cat":"건강","price":"18,900","trend":"급상승","img":"💊","reviews":4800,"url":"https://www.coupang.com/np/search?q=키즈+비타민D"},
-      {"rank":4,"name":"주방 정리 선반 스틸","cat":"인테리어","price":"29,900","trend":"유지","img":"🏠","reviews":3500,"url":"https://www.coupang.com/np/search?q=주방+정리+선반"}
+      {
+        "rank": 1,
+        "name": "블루나 본 오리지널 유아물티슈 캡형, 50g, 100매, 10개",
+        "price": "10",
+        "growth": "+39%",
+        "reviews": 4544,
+        "is_rocket": true,
+        "img": "👶",
+        "url": "https://www.coupang.com/np/search?q=유아물티슈",
+        "score": 99,
+        "cat": "유아물티슈",
+        "trend": "상승"
+      },
+      {
+        "rank": 2,
+        "name": "블루나 본 시그니처 도톰한 아기 물티슈 엠보싱 캡형, 10개, 70매, 70g",
+        "price": "16",
+        "growth": "+47%",
+        "reviews": 13,
+        "is_rocket": true,
+        "img": "👶",
+        "url": "https://www.coupang.com/np/search?q=유아물티슈",
+        "score": 64,
+        "cat": "유아물티슈",
+        "trend": "유지"
+      },
+      {
+        "rank": 3,
+        "name": "베베앙 오리지널 플러스 유아물티슈 캡형, 55g, 100매, 10개",
+        "price": "14",
+        "growth": "+42%",
+        "reviews": 345616,
+        "is_rocket": true,
+        "img": "👶",
+        "url": "https://www.coupang.com/np/search?q=유아물티슈",
+        "score": 99,
+        "cat": "유아물티슈",
+        "trend": "급상승"
+      },
+      {
+        "rank": 4,
+        "name": "베베숲 오리진 유아물티슈 캡형, 50g, 100매, 10개",
+        "price": "13",
+        "growth": "+25%",
+        "reviews": 82683,
+        "is_rocket": true,
+        "img": "👶",
+        "url": "https://www.coupang.com/np/search?q=유아물티슈",
+        "score": 99,
+        "cat": "유아물티슈",
+        "trend": "상승"
+      }
     ],
     "40대": [
-      {"rank":1,"name":"관절 글루코사민 90일분","cat":"건강","price":"29,900","trend":"유지","img":"💪","reviews":5800,"url":"https://www.coupang.com/np/search?q=글루코사민"},
-      {"rank":2,"name":"골프 장갑 양피 남성","cat":"스포츠","price":"15,900","trend":"상승","img":"⛳","reviews":4200,"url":"https://www.coupang.com/np/search?q=골프장갑+양피"},
-      {"rank":3,"name":"안마의자 쿠션 목어깨","cat":"가전","price":"89,000","trend":"상승","img":"💆","reviews":3200,"url":"https://www.coupang.com/np/search?q=안마의자+쿠션"},
-      {"rank":4,"name":"블루라이트 차단 안경","cat":"패션","price":"19,900","trend":"급상승","img":"👓","reviews":2800,"url":"https://www.coupang.com/np/search?q=블루라이트+차단+안경"}
+      {
+        "rank": 1,
+        "name": "[호주] 마더네스트 글루코사민 크림 100g x 3개 관절 케어 본사 정품 (29년 8월)",
+        "price": "1,744",
+        "growth": "+44%",
+        "reviews": 147,
+        "is_rocket": false,
+        "img": "💪",
+        "url": "https://www.coupang.com/np/search?q=글루코사민",
+        "score": 64,
+        "cat": "글루코사민",
+        "trend": "유지"
+      },
+      {
+        "rank": 2,
+        "name": "리얼메디온 리얼업 관절 연골 뼈건강 엔 엠에스엠 2000 MSM NAG 글루코사민 비타민D 비타민K2 플러스 84g, 3개, 60정",
+        "price": "111",
+        "growth": "+68%",
+        "reviews": 71,
+        "is_rocket": true,
+        "img": "💪",
+        "url": "https://www.coupang.com/np/search?q=글루코사민",
+        "score": 71,
+        "cat": "글루코사민",
+        "trend": "급상승"
+      },
+      {
+        "rank": 3,
+        "name": "닥터스베스트 글루코사민 콘드로이친 MSM 캡슐, 360정, 1개",
+        "price": "126",
+        "growth": "+18%",
+        "reviews": 14269,
+        "is_rocket": false,
+        "img": "💪",
+        "url": "https://www.coupang.com/np/search?q=글루코사민",
+        "score": 99,
+        "cat": "글루코사민",
+        "trend": "상승"
+      },
+      {
+        "rank": 4,
+        "name": "커클랜드시그니춰 글루코사민HCI + 엠에스엠, 1개, 375정",
+        "price": "70",
+        "growth": "",
+        "reviews": 1424,
+        "is_rocket": true,
+        "img": "💪",
+        "url": "https://www.coupang.com/np/search?q=글루코사민",
+        "score": 64,
+        "cat": "글루코사민",
+        "trend": "급상승"
+      }
     ],
     "50대+": [
-      {"rank":1,"name":"자동 혈압계 가정용","cat":"건강","price":"45,000","trend":"유지","img":"❤️","reviews":8900,"url":"https://www.coupang.com/np/search?q=자동+혈압계"},
-      {"rank":2,"name":"등산 스틱 카본 접이식","cat":"스포츠","price":"29,900","trend":"상승","img":"🥾","reviews":4100,"url":"https://www.coupang.com/np/search?q=등산+스틱+카본"},
-      {"rank":3,"name":"홍삼 진액 30포 선물용","cat":"건강","price":"39,900","trend":"유지","img":"🧧","reviews":6200,"url":"https://www.coupang.com/np/search?q=홍삼+진액+30포"},
-      {"rank":4,"name":"허리보호 쿠션 사무용","cat":"생활","price":"35,000","trend":"상승","img":"🪑","reviews":3200,"url":"https://www.coupang.com/np/search?q=허리보호+쿠션"}
+      {
+        "rank": 1,
+        "name": "트랜스텍 팔뚝형 블루투스 혈압측정기 TMB-2271-BK 자동 혈압계, 1개",
+        "price": "48,800",
+        "growth": "+11%",
+        "reviews": 194,
+        "is_rocket": true,
+        "img": "❤️",
+        "url": "https://www.coupang.com/np/search?q=혈압계",
+        "score": 55,
+        "cat": "혈압계",
+        "trend": "유지"
+      },
+      {
+        "rank": 2,
+        "name": "오므론 자동 전자 혈압계 HEM-7121J, 1개",
+        "price": "54,900",
+        "growth": "+8%",
+        "reviews": 9667,
+        "is_rocket": true,
+        "img": "❤️",
+        "url": "https://www.coupang.com/np/search?q=혈압계",
+        "score": 99,
+        "cat": "혈압계",
+        "trend": "상승"
+      },
+      {
+        "rank": 3,
+        "name": "오므론 자동 전자 혈압계 HEM-7121J, 1개",
+        "price": "54,900",
+        "growth": "+8%",
+        "reviews": 9667,
+        "is_rocket": true,
+        "img": "❤️",
+        "url": "https://www.coupang.com/np/search?q=혈압계",
+        "score": 99,
+        "cat": "혈압계",
+        "trend": "급상승"
+      },
+      {
+        "rank": 4,
+        "name": "카스 자동전자 혈압계 LD-562, 1개",
+        "price": "39,000",
+        "growth": "+34%",
+        "reviews": 3421,
+        "is_rocket": true,
+        "img": "❤️",
+        "url": "https://www.coupang.com/np/search?q=혈압계",
+        "score": 94,
+        "cat": "혈압계",
+        "trend": "유지"
+      }
+    ]
+  },
+  "priceAnalysis": [
+    {
+      "range": "1만원 이하",
+      "avgSales": 28000,
+      "competition": 10.0,
+      "margin": "15~25%",
+      "topItem": "그린나래 국내생산 MB필터 ",
+      "bestCategory": "전체"
+    },
+    {
+      "range": "1~3만원",
+      "avgSales": 23500,
+      "competition": 8.7,
+      "margin": "25~40%",
+      "topItem": "라이프리듬 캠핑 의자 1+1",
+      "bestCategory": "전체"
+    },
+    {
+      "range": "3~5만원",
+      "avgSales": 9000,
+      "competition": 7.4,
+      "margin": "30~45%",
+      "topItem": "데이터 수집 중",
+      "bestCategory": "전체"
+    },
+    {
+      "range": "5~10만원",
+      "avgSales": 10000,
+      "competition": 6.1,
+      "margin": "25~35%",
+      "topItem": "데이터 수집 중",
+      "bestCategory": "전체"
+    },
+    {
+      "range": "10~30만원",
+      "avgSales": 8000,
+      "competition": 4.8,
+      "margin": "20~30%",
+      "topItem": "데이터 수집 중",
+      "bestCategory": "전체"
+    },
+    {
+      "range": "30만원 이상",
+      "avgSales": 6500,
+      "competition": 3.5,
+      "margin": "15~25%",
+      "topItem": "데이터 수집 중",
+      "bestCategory": "전체"
+    }
+  ],
+  "bestSellers": {
+    "weekly": [
+      {
+        "rank": 1,
+        "name": "베베앙 오리지널 플러스 유아물티슈 캡형, 55",
+        "seller": "쿠팡 판매자",
+        "sales": 13824640,
+        "change": "+42%",
+        "reviews": 4.656525058539378,
+        "img": "👶",
+        "url": "https://www.coupang.com/np/search?q=유아물티슈"
+      },
+      {
+        "rank": 2,
+        "name": "신지모루 에어클로 휴대폰 케이스",
+        "seller": "쿠팡 판매자",
+        "sales": 4968560,
+        "change": "+78%",
+        "reviews": 4.87921640852073,
+        "img": "📱",
+        "url": "https://www.coupang.com/np/search?q=폰케이스"
+      },
+      {
+        "rank": 3,
+        "name": "코멧 KF94 데일리 새부리형 보건방역 마스크",
+        "seller": "공식스토어",
+        "sales": 4966520,
+        "change": "+30%",
+        "reviews": 4.574068698494772,
+        "img": "😷",
+        "url": "https://www.coupang.com/np/search?q=미세먼지마스크"
+      },
+      {
+        "rank": 4,
+        "name": "탐사 국내 생산 포켓용 핫팩 90g, 50개",
+        "seller": "직영몰",
+        "sales": 4592120,
+        "change": "+56%",
+        "reviews": 4.792564496374027,
+        "img": "♨️",
+        "url": "https://www.coupang.com/np/search?q=핫팩"
+      },
+      {
+        "rank": 5,
+        "name": "베베숲 오리진 유아물티슈 캡형, 50g, 10",
+        "seller": "직영몰",
+        "sales": 3307320,
+        "change": "+25%",
+        "reviews": 4.55801081885141,
+        "img": "👶",
+        "url": "https://www.coupang.com/np/search?q=유아물티슈"
+      },
+      {
+        "rank": 6,
+        "name": "QCY 블루투스 이어폰, QCY-T13 APP",
+        "seller": "쿠팡 판매자",
+        "sales": 1528080,
+        "change": "+69%",
+        "reviews": 4.539494776511686,
+        "img": "🎧",
+        "url": "https://www.coupang.com/np/search?q=무선이어폰"
+      },
+      {
+        "rank": 7,
+        "name": "핫앤핫 핫팩, 3개",
+        "seller": "직영몰",
+        "sales": 1062880,
+        "change": "+35%",
+        "reviews": 4.5171665340444545,
+        "img": "♨️",
+        "url": "https://www.coupang.com/np/search?q=핫팩"
+      },
+      {
+        "rank": 8,
+        "name": "KONLI 노이즈 캔슬링 커널형 무선 블루투스",
+        "seller": "마켓플레이스",
+        "sales": 1039000,
+        "change": "+82%",
+        "reviews": 4.764603642897996,
+        "img": "👟",
+        "url": "https://www.coupang.com/np/search?q=무선이어폰"
+      }
+    ],
+    "monthly": [
+      {
+        "rank": 1,
+        "name": "베베앙 오리지널 플러스 유아물티슈 캡형, 55",
+        "seller": "쿠팡 판매자",
+        "sales": 55298560,
+        "change": "+42%",
+        "reviews": 4.656525058539378,
+        "img": "👶",
+        "url": "https://www.coupang.com/np/search?q=유아물티슈"
+      },
+      {
+        "rank": 2,
+        "name": "신지모루 에어클로 휴대폰 케이스",
+        "seller": "쿠팡 판매자",
+        "sales": 19874240,
+        "change": "+78%",
+        "reviews": 4.87921640852073,
+        "img": "📱",
+        "url": "https://www.coupang.com/np/search?q=폰케이스"
+      },
+      {
+        "rank": 3,
+        "name": "코멧 KF94 데일리 새부리형 보건방역 마스크",
+        "seller": "공식스토어",
+        "sales": 19866080,
+        "change": "+30%",
+        "reviews": 4.574068698494772,
+        "img": "😷",
+        "url": "https://www.coupang.com/np/search?q=미세먼지마스크"
+      },
+      {
+        "rank": 4,
+        "name": "탐사 국내 생산 포켓용 핫팩 90g, 50개",
+        "seller": "직영몰",
+        "sales": 18368480,
+        "change": "+56%",
+        "reviews": 4.792564496374027,
+        "img": "♨️",
+        "url": "https://www.coupang.com/np/search?q=핫팩"
+      },
+      {
+        "rank": 5,
+        "name": "베베숲 오리진 유아물티슈 캡형, 50g, 10",
+        "seller": "직영몰",
+        "sales": 13229280,
+        "change": "+25%",
+        "reviews": 4.55801081885141,
+        "img": "👶",
+        "url": "https://www.coupang.com/np/search?q=유아물티슈"
+      },
+      {
+        "rank": 6,
+        "name": "QCY 블루투스 이어폰, QCY-T13 APP",
+        "seller": "쿠팡 판매자",
+        "sales": 6112320,
+        "change": "+69%",
+        "reviews": 4.539494776511686,
+        "img": "🎧",
+        "url": "https://www.coupang.com/np/search?q=무선이어폰"
+      },
+      {
+        "rank": 7,
+        "name": "핫앤핫 핫팩, 3개",
+        "seller": "직영몰",
+        "sales": 4251520,
+        "change": "+35%",
+        "reviews": 4.5171665340444545,
+        "img": "♨️",
+        "url": "https://www.coupang.com/np/search?q=핫팩"
+      },
+      {
+        "rank": 8,
+        "name": "KONLI 노이즈 캔슬링 커널형 무선 블루투스",
+        "seller": "마켓플레이스",
+        "sales": 4156000,
+        "change": "+82%",
+        "reviews": 4.764603642897996,
+        "img": "👟",
+        "url": "https://www.coupang.com/np/search?q=무선이어폰"
+      }
+    ]
+  },
+  "sellerRankings": [
+    {
+      "rank": 1,
+      "name": "삼성공식스토어",
+      "category": "전자기기",
+      "monthlySales": "₩48.2억",
+      "products": 1240,
+      "rating": 4.9,
+      "badge": "로켓배송"
+    },
+    {
+      "rank": 2,
+      "name": "CJ제일제당",
+      "category": "식품",
+      "monthlySales": "₩32.1억",
+      "products": 890,
+      "rating": 4.8,
+      "badge": "로켓배송"
+    },
+    {
+      "rank": 3,
+      "name": "LG생활건강",
+      "category": "뷰티/생활",
+      "monthlySales": "₩28.7억",
+      "products": 1560,
+      "rating": 4.7,
+      "badge": "로켓배송"
+    },
+    {
+      "rank": 4,
+      "name": "나이키코리아",
+      "category": "스포츠/패션",
+      "monthlySales": "₩24.5억",
+      "products": 2340,
+      "rating": 4.8,
+      "badge": "로켓배송"
+    },
+    {
+      "rank": 5,
+      "name": "애플코리아",
+      "category": "전자기기",
+      "monthlySales": "₩21.3억",
+      "products": 420,
+      "rating": 4.9,
+      "badge": "로켓배송"
+    },
+    {
+      "rank": 6,
+      "name": "풀무원",
+      "category": "식품",
+      "monthlySales": "₩18.9억",
+      "products": 670,
+      "rating": 4.6,
+      "badge": "로켓프레시"
+    },
+    {
+      "rank": 7,
+      "name": "쿠팡 자체브랜드",
+      "category": "생활용품",
+      "monthlySales": "₩16.2억",
+      "products": 3200,
+      "rating": 4.5,
+      "badge": "로켓배송"
+    },
+    {
+      "rank": 8,
+      "name": "다이슨코리아",
+      "category": "가전",
+      "monthlySales": "₩14.8억",
+      "products": 180,
+      "rating": 4.7,
+      "badge": "로켓배송"
+    }
+  ],
+  "globalSourcing": {
+    "🇨🇳 중국 (1688/알리)": [
+      {
+        "rank": 1,
+        "name": "LED 무드등 색변환",
+        "cat": "인테리어",
+        "margin": "65~80%",
+        "delivery": "7~14일",
+        "risk": "낮음",
+        "score": 92,
+        "img": "💡"
+      },
+      {
+        "rank": 2,
+        "name": "실리콘 주방도구 세트",
+        "cat": "주방용품",
+        "margin": "70~85%",
+        "delivery": "7~14일",
+        "risk": "낮음",
+        "score": 89,
+        "img": "🥄"
+      },
+      {
+        "rank": 3,
+        "name": "차량용 핸드폰 거치대",
+        "cat": "자동차",
+        "margin": "60~75%",
+        "delivery": "7~14일",
+        "risk": "중간",
+        "score": 86,
+        "img": "📱"
+      },
+      {
+        "rank": 4,
+        "name": "미니 가습기 USB",
+        "cat": "가전",
+        "margin": "55~70%",
+        "delivery": "10~20일",
+        "risk": "중간",
+        "score": 82,
+        "img": "💨"
+      },
+      {
+        "rank": 5,
+        "name": "블루투스 스피커 방수",
+        "cat": "전자기기",
+        "margin": "50~65%",
+        "delivery": "10~20일",
+        "risk": "높음",
+        "score": 78,
+        "img": "🔊"
+      }
+    ],
+    "🇯🇵 일본 (라쿠텐)": [
+      {
+        "rank": 1,
+        "name": "다이소 수납 정리함",
+        "cat": "생활용품",
+        "margin": "45~60%",
+        "delivery": "5~10일",
+        "risk": "낮음",
+        "score": 90,
+        "img": "📦"
+      },
+      {
+        "rank": 2,
+        "name": "일본 과자 세트",
+        "cat": "식품",
+        "margin": "35~50%",
+        "delivery": "7~14일",
+        "risk": "중간",
+        "score": 85,
+        "img": "🍘"
+      },
+      {
+        "rank": 3,
+        "name": "올인원 스킨케어",
+        "cat": "뷰티",
+        "margin": "40~55%",
+        "delivery": "5~10일",
+        "risk": "낮음",
+        "score": 83,
+        "img": "🧴"
+      },
+      {
+        "rank": 4,
+        "name": "캐릭터 문구류",
+        "cat": "문구/취미",
+        "margin": "50~65%",
+        "delivery": "7~14일",
+        "risk": "낮음",
+        "score": 80,
+        "img": "✏️"
+      },
+      {
+        "rank": 5,
+        "name": "일본 주방 칼세트",
+        "cat": "주방용품",
+        "margin": "30~45%",
+        "delivery": "7~14일",
+        "risk": "중간",
+        "score": 76,
+        "img": "🔪"
+      }
+    ],
+    "🇺🇸 미국 (아마존US)": [
+      {
+        "rank": 1,
+        "name": "프리미엄 비타민 세트",
+        "cat": "건강식품",
+        "margin": "40~55%",
+        "delivery": "10~21일",
+        "risk": "중간",
+        "score": 87,
+        "img": "💊"
+      },
+      {
+        "rank": 2,
+        "name": "유기농 프로틴바",
+        "cat": "건강식품",
+        "margin": "35~50%",
+        "delivery": "10~21일",
+        "risk": "중간",
+        "score": 84,
+        "img": "🍫"
+      },
+      {
+        "rank": 3,
+        "name": "스마트워치 밴드",
+        "cat": "전자기기",
+        "margin": "55~70%",
+        "delivery": "14~25일",
+        "risk": "낮음",
+        "score": 81,
+        "img": "⌚"
+      },
+      {
+        "rank": 4,
+        "name": "코스트코 견과류 대용량",
+        "cat": "식품",
+        "margin": "25~35%",
+        "delivery": "14~25일",
+        "risk": "높음",
+        "score": 75,
+        "img": "🥜"
+      },
+      {
+        "rank": 5,
+        "name": "캠핑 LED 랜턴",
+        "cat": "아웃도어",
+        "margin": "45~60%",
+        "delivery": "14~25일",
+        "risk": "중간",
+        "score": 72,
+        "img": "🔦"
+      }
     ]
   },
   "blueOcean": [
-    {"rank":1,"name":"반려식물 자동급수기","demand":8200,"sellers":12,"score":96,"opp":"최상","price":"15,900","cat":"원예"},
-    {"rank":2,"name":"캠핑용 미니 화로대","demand":15400,"sellers":28,"score":92,"opp":"최상","price":"35,000","cat":"아웃도어"},
-    {"rank":3,"name":"펫 자동급식기 카메라","demand":12100,"sellers":31,"score":89,"opp":"우수","price":"59,900","cat":"반려동물"},
-    {"rank":4,"name":"노트북 수직 거치대","demand":9800,"sellers":19,"score":87,"opp":"우수","price":"24,900","cat":"사무"},
-    {"rank":5,"name":"유아 감각놀이 키트","demand":7500,"sellers":8,"score":85,"opp":"우수","price":"22,000","cat":"유아교구"},
-    {"rank":6,"name":"실리콘 얼음틀 대형","demand":11200,"sellers":45,"score":82,"opp":"양호","price":"9,900","cat":"주방"}
+    {
+      "rank": 1,
+      "name": "WHH 야외 휴식 휴대용 접이식 경량",
+      "demand": 3000,
+      "sellers": 5,
+      "score": 90,
+      "opp": "최상",
+      "price": "17,850",
+      "cat": "캠핑의자"
+    },
+    {
+      "rank": 2,
+      "name": "WHH 고급 모델 휴대용 경량 릴렉스",
+      "demand": 3000,
+      "sellers": 5,
+      "score": 94,
+      "opp": "최상",
+      "price": "24,900",
+      "cat": "캠핑의자"
+    },
+    {
+      "rank": 3,
+      "name": "방수 돗자리 접이식 피크닉매트 캠핑 ",
+      "demand": 3000,
+      "sellers": 5,
+      "score": 89,
+      "opp": "우수",
+      "price": "13,900",
+      "cat": "피크닉매트"
+    },
+    {
+      "rank": 4,
+      "name": "프리폼 아이스박스 여름 야회활동 캠핑",
+      "demand": 3000,
+      "sellers": 5,
+      "score": 97,
+      "opp": "최상",
+      "price": "189,000",
+      "cat": "아이스박스"
+    },
+    {
+      "rank": 5,
+      "name": "랜서킹 선크림 선로션 SPF50+ P",
+      "demand": 3000,
+      "sellers": 5,
+      "score": 87,
+      "opp": "우수",
+      "price": "2,367",
+      "cat": "자외선차단제"
+    },
+    {
+      "rank": 6,
+      "name": "BON 트렌치코트 BNESH500BE",
+      "demand": 3000,
+      "sellers": 5,
+      "score": 96,
+      "opp": "최상",
+      "price": "309,500",
+      "cat": "트렌치코트"
+    }
   ]
 }
