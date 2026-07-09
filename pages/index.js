@@ -9,7 +9,7 @@ import {
 import { makeAffiliateLink, makeSearchLink, trackClick } from "../lib/affiliate";
 
 /* ═══════════════════════════════════════════════════
- *  쿠팡랭킹 메인 페이지
+ *  마켓퀀트 (MarketQuant) 메인 페이지
  *  - getStaticProps로 빌드 시 JSON 데이터 로딩 (SSG)
  *  - 모든 상품 링크에 어필리에이트 자동 적용
  * ═══════════════════════════════════════════════════ */
@@ -454,10 +454,10 @@ export default function Home({ data }) {
   return (
     <>
       <Head>
-        <title>쿠팡랭킹 — 데이터 기반 쿠팡 트렌드 분석</title>
-        <meta name="description" content="계절별·연령대별·키워드별 쿠팡 인기 상품 분석. 뭘 사야 하지? 뭘 팔아야 하지? 데이터가 답합니다." />
-        <meta property="og:title" content="쿠팡랭킹 — 데이터 기반 쿠팡 트렌드 분석" />
-        <meta property="og:description" content="계절별·연령대별 쿠팡 인기 상품을 퀀트 분석으로 보여드립니다." />
+        <title>마켓퀀트 — 퀀트 분석으로 읽는 이커머스 트렌드</title>
+        <meta name="description" content="계절별·연령대별·키워드별 인기 상품을 퀀트 분석으로 보여드립니다. 뭘 사야 하지? 뭘 팔아야 하지? 데이터가 답합니다." />
+        <meta property="og:title" content="마켓퀀트 MarketQuant — 이커머스 퀀트 분석" />
+        <meta property="og:description" content="데이터 기반 이커머스 트렌드 분석. 계절성, 연령대, 가격대, 블루오션까지." />
         <meta property="og:type" content="website" />
         <meta name="robots" content="index, follow" />
       </Head>
@@ -467,10 +467,11 @@ export default function Home({ data }) {
         <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "8px" }}>
           <div>
             <h1 style={{ fontSize: "22px", fontWeight: 800, color: "#FFF", letterSpacing: "-0.5px" }}>
-              <span style={{ color: "#FD7E14" }}>쿠팡</span>랭킹
+              <span style={{ color: "#339AF0" }}>Market</span><span style={{ color: "#FD7E14" }}>Quant</span>
+              <span style={{ fontSize: "12px", fontWeight: 500, color: "#868E96", marginLeft: "8px" }}>마켓퀀트</span>
             </h1>
             <p style={{ fontSize: "12px", color: "#868E96", marginTop: "2px" }}>
-              데이터 기반 쿠팡 트렌드 분석 — 뭘 사야 하지? 뭘 팔아야 하지?
+              퀀트 분석으로 읽는 이커머스 트렌드 — 뭘 사야 하지? 뭘 팔아야 하지?
             </p>
           </div>
           <span style={{ fontSize: "11px", color: "#868E96", background: "rgba(255,255,255,0.06)", padding: "5px 12px", borderRadius: "14px" }}>
@@ -507,9 +508,9 @@ export default function Home({ data }) {
 
       {/* 푸터 — 쿠팡 파트너스 문구 필수 */}
       <footer style={{ background: "#1A1B1E", color: "#868E96", padding: "20px 16px", textAlign: "center", fontSize: "11px", lineHeight: 1.8, marginTop: "30px" }}>
-        <div style={{ color: "#FD7E14", fontWeight: 700, fontSize: "13px", marginBottom: "4px" }}>쿠팡랭킹</div>
+        <div style={{ fontWeight: 700, fontSize: "14px", marginBottom: "4px" }}><span style={{ color: "#339AF0" }}>Market</span><span style={{ color: "#FD7E14" }}>Quant</span></div>
         <p>이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</p>
-        <p>© 2026 쿠팡랭킹 · 데이터 기반 쇼핑 트렌드 분석</p>
+        <p>© 2026 마켓퀀트 · 퀀트 분석 기반 이커머스 트렌드</p>
       </footer>
     </>
   );
