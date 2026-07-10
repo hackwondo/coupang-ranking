@@ -1,0 +1,94 @@
+[
+  {
+    "id": 1,
+    "title": "여기에 논문 제목 입력",
+    "titleEn": "English Title Here",
+    "authors": "홍길동, Kim, J.H.",
+    "journal": "Journal of Marketing Research",
+    "year": 2024,
+    "doi": "https://doi.org/10.xxxx/xxxxx",
+    "abstract": "여기에 초록을 입력하세요. 논문의 연구 목적, 방법론, 주요 결과를 요약합니다.",
+    "keyFindings": [
+      "주요 발견 1: 여기에 핵심 결과를 적으세요",
+      "주요 발견 2: 두 번째 핵심 결과",
+      "주요 발견 3: 세 번째 핵심 결과"
+    ],
+    "methodology": "연구 방법론을 간략히 설명 (예: 회귀분석, 서베이, 실험설계 등)",
+    "marketingInsight": "이 논문이 이커머스 셀러에게 주는 시사점을 적으세요. 예: '가격을 10% 낮추면 전환율이 23% 증가한다'",
+    "tags": ["키워드1", "키워드2", "키워드3"],
+    "image": ""
+  },
+  {
+    "id": 2,
+    "title": "여기에 두 번째 논문 제목",
+    "titleEn": "Second Paper English Title",
+    "authors": "저자명",
+    "journal": "저널명",
+    "year": 2023,
+    "doi": "",
+    "abstract": "초록 입력",
+    "keyFindings": [
+      "주요 발견 1",
+      "주요 발견 2",
+      "주요 발견 3"
+    ],
+    "methodology": "연구 방법론",
+    "marketingInsight": "마케팅 시사점",
+    "tags": ["키워드1", "키워드2"],
+    "image": ""
+  },
+  {
+    "id": 3,
+    "title": "세 번째 논문 제목",
+    "titleEn": "Third Paper Title",
+    "authors": "저자명",
+    "journal": "저널명",
+    "year": 2024,
+    "doi": "",
+    "abstract": "초록 입력",
+    "keyFindings": [
+      "주요 발견 1",
+      "주요 발견 2"
+    ],
+    "methodology": "연구 방법론",
+    "marketingInsight": "마케팅 시사점",
+    "tags": ["키워드1", "키워드2"],
+    "image": ""
+  },
+  {
+    "id": 4,
+    "title": "네 번째 논문 제목",
+    "titleEn": "Fourth Paper Title",
+    "authors": "저자명",
+    "journal": "저널명",
+    "year": 2025,
+    "doi": "",
+    "abstract": "초록 입력",
+    "keyFindings": [
+      "주요 발견 1",
+      "주요 발견 2"
+    ],
+    "methodology": "연구 방법론",
+    "marketingInsight": "마케팅 시사점",
+    "tags": ["키워드1", "키워드2"],
+    "image": ""
+  },
+  {
+    "id": 5,
+    "title": "다섯 번째 논문 제목",
+    "titleEn": "Fifth Paper Title",
+    "authors": "저자명",
+    "journal": "저널명",
+    "year": 2024,
+    "doi": "",
+    "abstract": "초록 입력",
+    "keyFindings": [
+      "주요 발견 1",
+      "주요 발견 2"
+    ],
+    "methodology": "연구 방법론",
+    "marketingInsight": "마케팅 시사점",
+    "tags": ["키워드1", "키워드2"],
+    "image": ""
+  }
+]

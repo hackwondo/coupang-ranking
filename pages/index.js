@@ -11,7 +11,15 @@ import { makeAffiliateLink, makeSearchLink, trackClick } from "../lib/affiliate"
 export async function getStaticProps() {
   const fp = path.join(process.cwd(), "data", "products.json");
   const raw = fs.readFileSync(fp, "utf-8");
-  return { props: { data: JSON.parse(raw) } };
+  const data = JSON.parse(raw);
+  
+  // 논문 데이터 로딩
+  const ppPath = path.join(process.cwd(), "data", "papers.json");
+  let papers = [];
+  try { papers = JSON.parse(fs.readFileSync(ppPath, "utf-8")); } catch(e) {}
+  data.papers = papers;
+  
+  return { props: { data } };
 }
 
 // ─── 스타일 (글씨 크기 키움) ──────────────
@@ -432,15 +440,13 @@ function CategoryCompTab({ categoryCompetition }) {
 }
 
 // ─── 탭 10: 키워드 대결 (NEW) ────────────
-function KeywordBattleTab({ trending, seasons }) {
-  const allItems = [...(trending||[])];
-  const seasonItems = Object.values(seasons||{}).flat().filter(x=>x.score);
+function KeywordBattleTab({ trending }) {
+  const list = trending||[];
   const [a,setA]=useState(0);
-  const [b,setB]=useState(1);
-  const listA = trending||[];
-  const listB = seasonItems.length>0 ? seasonItems : listA;
-  const itemA = listA[a%listA.length] || {};
-  const itemB = listB[b%listB.length] || {};
+  const [b,setB]=useState(Math.min(1,list.length-1));
+  const itemA = list[a] || {};
+  const itemB = list[b] || {};
+  const winVol = (itemA.vol||0)>=(itemB.vol||0) ? 0 : 1;
   return (<>
     <Insight title="키워드 대결 — 기회비용 분석"
       refs="Mankiw, N.G. (2020). Principles of Economics. 9th ed. Cengage. / 기회비용(Opportunity Cost): 하나를 선택함으로써 포기하는 최선의 대안 가치.">
@@ -450,26 +456,280 @@ function KeywordBattleTab({ trending, seasons }) {
     <div style={{ display:"flex", gap:"8px", marginBottom:"16px", flexWrap:"wrap", alignItems:"center" }}>
       <select value={a} onChange={e=>setA(Number(e.target.value))}
         style={{ padding:"8px 14px", borderRadius:"8px", border:`1px solid ${C.border}`, fontSize:F.small, flex:1, minWidth:"140px" }}>
-        {listA.map((t,i)=><option key={i} value={i}>{t.keyword}</option>)}
+        {list.map((t,i)=><option key={i} value={i}>{t.keyword}</option>)}
       </select>
       <span style={{ fontSize:"18px", fontWeight:700, color:C.primary }}>VS</span>
       <select value={b} onChange={e=>setB(Number(e.target.value))}
         style={{ padding:"8px 14px", borderRadius:"8px", border:`1px solid ${C.border}`, fontSize:F.small, flex:1, minWidth:"140px" }}>
-        {listA.map((t,i)=><option key={i} value={i}>{t.keyword}</option>)}
+        {list.map((t,i)=><option key={i} value={i}>{t.keyword}</option>)}
       </select>
     </div>
     <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"14px" }}>
       {[itemA,itemB].map((item,idx)=>(
         <div key={idx} style={{ background:C.card, border:`2px solid ${idx===0?"#339AF0":"#FF922B"}`, borderRadius:"12px", padding:"18px" }}>
-          <div style={{ fontSize:F.h3, fontWeight:700, color:C.text, marginBottom:"12px", textAlign:"center" }}>{item.keyword||item.name||"—"}</div>
+          <div style={{ fontSize:F.h3, fontWeight:700, color:C.text, marginBottom:"14px", textAlign:"center" }}>{item.keyword||"—"}</div>
           <div style={{ fontSize:F.body, color:C.sub, lineHeight:2.2 }}>
-            <div>📊 검색량: <b style={{ color:C.text }}>{(item.vol||0).toLocaleString()}</b></div>
+            <div>📊 검색량: <b style={{ color:C.text }}>{(item.vol||0).toLocaleString()}</b>{idx===winVol && " 👑"}</div>
             <div>📈 변화율: <b style={{ color:(item.change||"").startsWith("+")?C.green:C.red }}>{item.change||"—"}</b></div>
             {item.bass_stage && <div>🔬 Bass 단계: <b style={{ color:C.purple }}>{item.bass_stage}</b></div>}
             <div>🏷️ 카테고리: <b>{item.cat||"—"}</b></div>
           </div>
         </div>))}
     </div>
+  </>);
+}
+
+// ─── 탭 11: 트렌드 버블 (NEW) ────────────
+function TrendBubbleTab({ trendBubbles }) {
+  const data = trendBubbles || [];
+  const [country, setCountry] = useState("kr");
+  const countries = [{ k:"kr", l:"🇰🇷 한국" }, { k:"us", l:"🇺🇸 미국" }, { k:"jp", l:"🇯🇵 일본" }];
+  
+  // 해당 국가 데이터 필터
+  const items = data.filter(d => d.country === country);
+  const maxVol = Math.max(...items.map(d => d.vol || 1), 1);
+
+  // 버블 레이아웃 계산 (간단한 나선 배치)
+  const bubbles = items.sort((a,b) => (b.vol||0) - (a.vol||0)).map((item, i) => {
+    const ratio = (item.vol || 1) / maxVol;
+    const r = Math.max(28, Math.min(75, ratio * 75));
+    const angle = i * 2.4;
+    const dist = 50 + i * 28;
+    const cx = 340 + Math.cos(angle) * dist;
+    const cy = 260 + Math.sin(angle) * dist;
+    return { ...item, r, cx, cy };
+  });
+
+  return (<>
+    <Insight title="트렌드 버블 맵 — 검색량 시각화"
+      refs="네이버 데이터랩 성별 검색 비중 + Google Trends 국가별 데이터 기반">
+      원의 크기는 검색량, 색상은 성별 비중을 나타냅니다.
+      파란색은 남성 검색 비중이 높은 키워드, 빨간색/분홍색은 여성 비중이 높은 키워드입니다.
+      보라색은 성별 차이가 적은 키워드입니다.
+    </Insight>
+
+    {/* 국가 선택 */}
+    <div style={{ display:"flex", gap:"8px", marginBottom:"18px", flexWrap:"wrap" }}>
+      {countries.map(c => (
+        <button key={c.k} onClick={() => setCountry(c.k)} style={{
+          padding:"8px 18px", borderRadius:"20px", fontSize:F.small, cursor:"pointer",
+          fontWeight: country===c.k ? 700 : 500,
+          background: country===c.k ? "#E7F5FF" : C.card,
+          color: country===c.k ? C.blue : C.sub,
+          border: country===c.k ? `2px solid ${C.blue}` : `1px solid ${C.border}`,
+        }}>{c.l}</button>
+      ))}
+    </div>
+
+    {/* 범례 */}
+    <div style={{ display:"flex", gap:"20px", marginBottom:"16px", fontSize:F.small, color:C.sub }}>
+      <span><span style={{ display:"inline-block", width:"14px", height:"14px", borderRadius:"50%", background:"#339AF0", verticalAlign:"middle", marginRight:"6px" }}></span>남성 비중 높음</span>
+      <span><span style={{ display:"inline-block", width:"14px", height:"14px", borderRadius:"50%", background:"#E64980", verticalAlign:"middle", marginRight:"6px" }}></span>여성 비중 높음</span>
+      <span><span style={{ display:"inline-block", width:"14px", height:"14px", borderRadius:"50%", background:"#7048E8", verticalAlign:"middle", marginRight:"6px" }}></span>성별 균등</span>
+      <span style={{ marginLeft:"auto" }}>원 크기 = 검색량</span>
+    </div>
+
+    {/* 버블 차트 */}
+    {bubbles.length > 0 ? (
+      <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:"12px", padding:"10px", overflow:"hidden" }}>
+        <svg viewBox="0 0 680 520" width="100%" style={{ display:"block" }}>
+          {bubbles.map((b, i) => {
+            const femaleRatio = b.femaleRatio || 50;
+            const color = femaleRatio > 60 ? "#E64980" : femaleRatio < 40 ? "#339AF0" : "#7048E8";
+            const opacity = 0.6 + (b.vol / maxVol) * 0.35;
+            return (
+              <g key={i}>
+                <circle cx={b.cx} cy={b.cy} r={b.r} fill={color} opacity={opacity} stroke="#FFF" strokeWidth="2"/>
+                <text x={b.cx} y={b.cy - (b.r > 40 ? 8 : 0)} textAnchor="middle" dominantBaseline="central"
+                  fill="#FFF" fontWeight="700" fontSize={b.r > 50 ? "14px" : b.r > 35 ? "11px" : "9px"}>
+                  {b.keyword.length > 6 ? b.keyword.slice(0, 6) : b.keyword}
+                </text>
+                {b.r > 40 && (
+                  <text x={b.cx} y={b.cy + 12} textAnchor="middle" dominantBaseline="central"
+                    fill="rgba(255,255,255,0.8)" fontSize="10px">
+                    {(b.vol||0).toLocaleString()}
+                  </text>
+                )}
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+    ) : (
+      <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:"12px", padding:"40px", textAlign:"center", color:C.sub }}>
+        트렌드 버블 데이터 수집 중입니다. 다음 업데이트에 반영됩니다.
+      </div>
+    )}
+
+    {/* 키워드 상세 테이블 */}
+    {items.length > 0 && (
+      <div style={{ marginTop:"18px" }}>
+        <div style={{ fontSize:F.h3, fontWeight:600, marginBottom:"12px", color:C.text }}>키워드 상세</div>
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(300px,1fr))", gap:"10px" }}>
+          {items.slice(0,12).map((item, i) => (
+            <div key={i} style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:"10px", padding:"14px",
+              display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+              <div>
+                <div style={{ fontSize:F.card, fontWeight:600, color:C.text }}>{item.keyword}</div>
+                <div style={{ fontSize:F.small, color:C.sub, marginTop:"3px" }}>
+                  ♂ {100-(item.femaleRatio||50)}% · ♀ {item.femaleRatio||50}%
+                </div>
+              </div>
+              <div style={{ textAlign:"right" }}>
+                <div style={{ fontSize:F.card, fontWeight:700, color:C.text }}>{(item.vol||0).toLocaleString()}</div>
+                <div style={{ fontSize:F.tag, color: (item.change||"").startsWith("+") ? C.green : C.red }}>{item.change}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+  </>);
+}
+
+// ─── 탭 12: 논문 분석 ───────────────────
+function PapersTab({ papers }) {
+  const [selected, setSelected] = useState(null);
+  const list = papers || [];
+  return (<>
+    <Insight title="마케팅 논문 분석 — 학술 연구 기반 인사이트"
+      refs="본 섹션의 논문들은 peer-reviewed 학술지에 게재된 연구를 분석한 것입니다.">
+      이커머스와 소비자 행동에 관한 최신 학술 논문을 분석하여, 데이터 기반 의사결정에 필요한 인사이트를 제공합니다.
+      논문 제목을 클릭하면 상세 내용을 확인할 수 있습니다.
+    </Insight>
+
+    {/* 논문 목록 (세로 정렬) */}
+    <div style={{ display:"flex", flexDirection:"column", gap:"12px" }}>
+      {list.map((paper, i) => (
+        <div key={paper.id || i}
+          onClick={() => setSelected(selected === i ? null : i)}
+          style={{
+            background: C.card, border: selected === i ? `2px solid ${C.blue}` : `1px solid ${C.border}`,
+            borderRadius: "12px", padding: "18px", cursor: "pointer",
+            borderLeft: `5px solid ${selected === i ? C.blue : C.purple}`,
+            transition: "all 0.15s",
+          }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: F.card, fontWeight: 700, color: C.text }}>{i + 1}. {paper.title}</div>
+              {paper.titleEn && <div style={{ fontSize: F.small, color: C.sub, marginTop: "2px", fontStyle: "italic" }}>{paper.titleEn}</div>}
+              <div style={{ fontSize: F.small, color: C.sub, marginTop: "6px" }}>
+                {paper.authors} · <span style={{ color: C.blue }}>{paper.journal}</span> · {paper.year}
+              </div>
+            </div>
+            <span style={{ fontSize: "20px", color: C.sub, flexShrink: 0, marginLeft: "12px" }}>
+              {selected === i ? "▲" : "▼"}
+            </span>
+          </div>
+
+          {/* 태그 */}
+          {paper.tags && paper.tags.length > 0 && (
+            <div style={{ display: "flex", gap: "6px", marginTop: "10px", flexWrap: "wrap" }}>
+              {paper.tags.map((tag, j) => (
+                <span key={j} style={{
+                  background: "#F3F0FF", color: C.purple, fontSize: F.tag, fontWeight: 500,
+                  padding: "3px 10px", borderRadius: "12px",
+                }}>{tag}</span>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+
+    {/* 팝업 (선택된 논문 상세) */}
+    {selected !== null && list[selected] && (() => {
+      const p = list[selected];
+      return (
+        <div style={{
+          position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+          background: "rgba(0,0,0,0.6)", zIndex: 9999,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          padding: "20px",
+        }} onClick={() => setSelected(null)}>
+          <div onClick={e => e.stopPropagation()} style={{
+            background: C.card, borderRadius: "16px", padding: "28px",
+            maxWidth: "700px", width: "100%", maxHeight: "85vh", overflowY: "auto",
+            boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
+          }}>
+            {/* 헤더 */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "16px" }}>
+              <div>
+                <div style={{ fontSize: F.h2, fontWeight: 700, color: C.text, lineHeight: 1.4 }}>{p.title}</div>
+                {p.titleEn && <div style={{ fontSize: F.small, color: C.sub, fontStyle: "italic", marginTop: "4px" }}>{p.titleEn}</div>}
+              </div>
+              <button onClick={() => setSelected(null)} style={{
+                background: "none", border: "none", fontSize: "24px", cursor: "pointer",
+                color: C.sub, padding: "0 4px", flexShrink: 0,
+              }}>✕</button>
+            </div>
+
+            {/* 메타 정보 */}
+            <div style={{ fontSize: F.small, color: C.sub, marginBottom: "16px",
+              padding: "10px 14px", background: "#F8F9FA", borderRadius: "8px", lineHeight: 1.8 }}>
+              <div>👤 저자: <b style={{ color: C.text }}>{p.authors}</b></div>
+              <div>📖 저널: <b style={{ color: C.blue }}>{p.journal}</b> ({p.year})</div>
+              {p.doi && <div>🔗 DOI: <a href={p.doi} target="_blank" rel="noopener noreferrer" style={{ color: C.blue }}>{p.doi}</a></div>}
+              {p.methodology && <div>🔬 방법론: <b>{p.methodology}</b></div>}
+            </div>
+
+            {/* Abstract */}
+            <div style={{ marginBottom: "16px" }}>
+              <div style={{ fontSize: F.card, fontWeight: 600, color: C.text, marginBottom: "8px" }}>Abstract</div>
+              <div style={{ fontSize: F.body, color: C.sub, lineHeight: 1.8,
+                padding: "12px 16px", background: "#FFFBF0", borderRadius: "8px", borderLeft: `4px solid #FCC419` }}>
+                {p.abstract}
+              </div>
+            </div>
+
+            {/* 주요 발견 */}
+            {p.keyFindings && p.keyFindings.length > 0 && (
+              <div style={{ marginBottom: "16px" }}>
+                <div style={{ fontSize: F.card, fontWeight: 600, color: C.text, marginBottom: "8px" }}>주요 발견</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                  {p.keyFindings.map((finding, j) => (
+                    <div key={j} style={{
+                      fontSize: F.body, color: C.text, lineHeight: 1.7,
+                      padding: "10px 14px", background: "#F0FFF4", borderRadius: "8px",
+                      borderLeft: `4px solid ${C.green}`,
+                    }}>
+                      {finding}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 마케팅 인사이트 */}
+            {p.marketingInsight && (
+              <div style={{
+                padding: "14px 18px", background: "linear-gradient(135deg,#1A1B1E,#25262B)",
+                borderRadius: "10px", borderLeft: `5px solid ${C.primary}`,
+              }}>
+                <div style={{ fontSize: F.card, fontWeight: 600, color: "#FD7E14", marginBottom: "6px" }}>
+                  💡 이커머스 셀러를 위한 시사점
+                </div>
+                <div style={{ fontSize: F.body, color: "#CED4DA", lineHeight: 1.8 }}>
+                  {p.marketingInsight}
+                </div>
+              </div>
+            )}
+
+            {/* 태그 */}
+            {p.tags && p.tags.length > 0 && (
+              <div style={{ display: "flex", gap: "6px", marginTop: "16px", flexWrap: "wrap" }}>
+                {p.tags.map((tag, j) => (
+                  <span key={j} style={{
+                    background: "#F3F0FF", color: C.purple, fontSize: F.tag,
+                    padding: "4px 12px", borderRadius: "12px", fontWeight: 500,
+                  }}>{tag}</span>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    })()}
   </>);
 }
 
@@ -485,6 +745,8 @@ const TABS = [
   { id:"global", label:"글로벌", icon:"🌐" },
   { id:"compete", label:"경쟁도", icon:"📊" },
   { id:"battle", label:"키워드대결", icon:"⚔️" },
+  { id:"bubble", label:"트렌드맵", icon:"🫧" },
+  { id:"papers", label:"논문분석", icon:"📚" },
 ];
 
 export default function Home({ data }) {
@@ -537,7 +799,9 @@ export default function Home({ data }) {
       {tab==="blue" && <BlueOceanTab blueOcean={data.blueOcean}/>}
       {tab==="global" && <GlobalTrendTab globalTrends={data.globalTrends}/>}
       {tab==="compete" && <CategoryCompTab categoryCompetition={data.categoryCompetition}/>}
-      {tab==="battle" && <KeywordBattleTab trending={data.trending} seasons={data.seasons}/>}
+      {tab==="battle" && <KeywordBattleTab trending={data.trending}/>}
+      {tab==="bubble" && <TrendBubbleTab trendBubbles={data.trendBubbles}/>}
+      {tab==="papers" && <PapersTab papers={data.papers}/>}
     </main>
 
     <footer style={{ background:"#1A1B1E", color:"#868E96", padding:"32px 16px 24px", fontSize:F.tag, lineHeight:1.9, marginTop:"30px" }}>
