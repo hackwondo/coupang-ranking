@@ -1,0 +1,29 @@
+<svg viewBox="0 0 600 350" xmlns="http://www.w3.org/2000/svg" style="background:#FFFBF0;border-radius:12px">
+  <text x="300" y="30" text-anchor="middle" font-size="16" font-weight="700" fill="#212529">HHI 시장집중도 지수 해석</text>
+  <text x="300" y="50" text-anchor="middle" font-size="11" fill="#868E96">Herfindahl-Hirschman Index (U.S. DOJ & FTC)</text>
+  <!-- Scale bar -->
+  <rect x="60" y="80" width="150" height="50" rx="8" fill="#D3F9D8" stroke="#2B8A3E"/>
+  <text x="135" y="100" text-anchor="middle" font-size="13" font-weight="600" fill="#2B8A3E">HHI &lt; 1,500</text>
+  <text x="135" y="120" text-anchor="middle" font-size="12" fill="#495057">경쟁적 시장</text>
+  <rect x="225" y="80" width="150" height="50" rx="8" fill="#FFF3BF" stroke="#E67700"/>
+  <text x="300" y="100" text-anchor="middle" font-size="13" font-weight="600" fill="#E67700">1,500~2,500</text>
+  <text x="300" y="120" text-anchor="middle" font-size="12" fill="#495057">보통 집중</text>
+  <rect x="390" y="80" width="150" height="50" rx="8" fill="#FFE3E3" stroke="#C92A2A"/>
+  <text x="465" y="100" text-anchor="middle" font-size="13" font-weight="600" fill="#C92A2A">HHI &gt; 2,500</text>
+  <text x="465" y="120" text-anchor="middle" font-size="12" fill="#495057">과점 시장</text>
+  <!-- Formula -->
+  <rect x="100" y="160" width="400" height="45" rx="8" fill="#F8F9FA" stroke="#DEE2E6"/>
+  <text x="300" y="188" text-anchor="middle" font-size="14" font-weight="600" fill="#212529">HHI = Σ (시장점유율)² = s₁² + s₂² + ... + sₙ²</text>
+  <!-- Examples -->
+  <text x="300" y="235" text-anchor="middle" font-size="13" font-weight="600" fill="#495057">이커머스 적용 예시</text>
+  <!-- Example 1 -->
+  <rect x="60" y="250" width="240" height="80" rx="8" fill="#E7F5FF"/>
+  <text x="180" y="275" text-anchor="middle" font-size="12" font-weight="600" fill="#1971C2">판매자 10명 균등 분배</text>
+  <text x="180" y="295" text-anchor="middle" font-size="11" fill="#495057">각 10% 점유 → HHI = 1,000</text>
+  <text x="180" y="315" text-anchor="middle" font-size="12" font-weight="600" fill="#2B8A3E">🟢 진입 기회!</text>
+  <!-- Example 2 -->
+  <rect x="320" y="250" width="240" height="80" rx="8" fill="#FFE3E3"/>
+  <text x="440" y="275" text-anchor="middle" font-size="12" font-weight="600" fill="#C92A2A">1위가 70% 독점</text>
+  <text x="440" y="295" text-anchor="middle" font-size="11" fill="#495057">70²+10²+10²+10² = 5,200</text>
+  <text x="440" y="315" text-anchor="middle" font-size="12" font-weight="600" fill="#C92A2A">🔴 진입 어려움</text>
+</svg>

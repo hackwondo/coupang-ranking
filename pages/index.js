@@ -715,6 +715,16 @@ function PapersTab({ papers }) {
               </div>
             )}
 
+            {/* 논문 이미지 */}
+            {p.image && (
+              <div style={{ marginTop: "16px" }}>
+                <div style={{ fontSize: F.card, fontWeight: 600, color: C.text, marginBottom: "8px" }}>📊 관련 그래프 / 다이어그램</div>
+                <img src={p.image} alt={p.title} style={{
+                  width: "100%", borderRadius: "8px", border: `1px solid ${C.border}`,
+                }} />
+              </div>
+            )}
+
             {/* 태그 */}
             {p.tags && p.tags.length > 0 && (
               <div style={{ display: "flex", gap: "6px", marginTop: "16px", flexWrap: "wrap" }}>

@@ -1,0 +1,26 @@
+<svg viewBox="0 0 600 350" xmlns="http://www.w3.org/2000/svg" style="background:#FFFBF0;border-radius:12px">
+  <text x="300" y="30" text-anchor="middle" font-size="16" font-weight="700" fill="#212529">가격탄력성 (Price Elasticity of Demand)</text>
+  <text x="300" y="50" text-anchor="middle" font-size="11" fill="#868E96">Marshall (1890) / Nagle & Müller (2018)</text>
+  <!-- Axes -->
+  <line x1="80" y1="280" x2="540" y2="280" stroke="#ADB5BD" stroke-width="1.5"/>
+  <line x1="80" y1="280" x2="80" y2="70" stroke="#ADB5BD" stroke-width="1.5"/>
+  <text x="310" y="310" text-anchor="middle" font-size="12" fill="#495057">가격 (Price)</text>
+  <text x="35" y="175" text-anchor="middle" font-size="12" fill="#495057" transform="rotate(-90,35,175)">수요량 (Demand)</text>
+  <!-- Elastic curve -->
+  <path d="M100,100 C200,110 300,200 520,270" fill="none" stroke="#339AF0" stroke-width="3"/>
+  <text x="520" y="260" font-size="11" font-weight="600" fill="#339AF0">탄력적 (|E|>1)</text>
+  <!-- Inelastic curve -->
+  <path d="M100,90 C150,150 200,230 250,270" fill="none" stroke="#E8590C" stroke-width="3"/>
+  <text x="260" y="260" font-size="11" font-weight="600" fill="#E8590C">비탄력적 (|E|&lt;1)</text>
+  <!-- Golden zone -->
+  <rect x="150" y="140" width="180" height="80" rx="8" fill="rgba(255,193,7,0.2)" stroke="#FCC419" stroke-dasharray="5,5"/>
+  <text x="240" y="170" text-anchor="middle" font-size="13" font-weight="700" fill="#E67700">골든존</text>
+  <text x="240" y="190" text-anchor="middle" font-size="11" fill="#495057">1~3만원: 충동구매 임계점</text>
+  <text x="240" y="207" text-anchor="middle" font-size="11" fill="#495057">판매량↑ × 마진↑ 최적 구간</text>
+  <!-- Price labels -->
+  <text x="100" y="298" font-size="10" fill="#868E96">1만↓</text>
+  <text x="180" y="298" font-size="10" fill="#E67700" font-weight="600">1~3만</text>
+  <text x="270" y="298" font-size="10" fill="#868E96">3~5만</text>
+  <text x="360" y="298" font-size="10" fill="#868E96">5~10만</text>
+  <text x="460" y="298" font-size="10" fill="#868E96">10만+</text>
+</svg>

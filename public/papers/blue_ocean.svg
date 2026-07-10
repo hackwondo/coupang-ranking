@@ -1,0 +1,24 @@
+<svg viewBox="0 0 600 350" xmlns="http://www.w3.org/2000/svg" style="background:#FFFBF0;border-radius:12px">
+  <text x="300" y="30" text-anchor="middle" font-size="16" font-weight="700" fill="#212529">Red Ocean vs Blue Ocean 전략</text>
+  <text x="300" y="50" text-anchor="middle" font-size="11" fill="#868E96">Kim, W.C. & Mauborgne, R. (2005)</text>
+  <!-- Red Ocean -->
+  <rect x="40" y="70" width="250" height="260" rx="12" fill="#FFE3E3" stroke="#C92A2A" stroke-width="2"/>
+  <text x="165" y="100" text-anchor="middle" font-size="15" font-weight="700" fill="#C92A2A">🔴 Red Ocean</text>
+  <text x="165" y="130" text-anchor="middle" font-size="12" fill="#495057">기존 시장에서 경쟁</text>
+  <text x="165" y="155" text-anchor="middle" font-size="12" fill="#495057">경쟁자를 이기는 것이 목표</text>
+  <text x="165" y="180" text-anchor="middle" font-size="12" fill="#495057">기존 수요를 차지</text>
+  <text x="165" y="205" text-anchor="middle" font-size="12" fill="#495057">가치/비용 트레이드오프</text>
+  <text x="165" y="235" text-anchor="middle" font-size="12" fill="#495057">차별화 OR 저비용 택 1</text>
+  <text x="165" y="270" text-anchor="middle" font-size="14" font-weight="600" fill="#C92A2A">→ 치열한 경쟁</text>
+  <text x="165" y="295" text-anchor="middle" font-size="14" font-weight="600" fill="#C92A2A">→ 이윤 감소</text>
+  <!-- Blue Ocean -->
+  <rect x="310" y="70" width="250" height="260" rx="12" fill="#E7F5FF" stroke="#1971C2" stroke-width="2"/>
+  <text x="435" y="100" text-anchor="middle" font-size="15" font-weight="700" fill="#1971C2">🔵 Blue Ocean</text>
+  <text x="435" y="130" text-anchor="middle" font-size="12" fill="#495057">새로운 시장 공간 창출</text>
+  <text x="435" y="155" text-anchor="middle" font-size="12" fill="#495057">경쟁을 무의미하게 만듦</text>
+  <text x="435" y="180" text-anchor="middle" font-size="12" fill="#495057">새로운 수요를 창출</text>
+  <text x="435" y="205" text-anchor="middle" font-size="12" fill="#495057">가치 혁신 (Value Innovation)</text>
+  <text x="435" y="235" text-anchor="middle" font-size="12" fill="#495057">차별화 AND 저비용 동시</text>
+  <text x="435" y="270" text-anchor="middle" font-size="14" font-weight="600" fill="#1971C2">→ 높은 성장</text>
+  <text x="435" y="295" text-anchor="middle" font-size="14" font-weight="600" fill="#1971C2">→ 높은 이윤</text>
+</svg>
