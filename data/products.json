@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-11",
+  "updated": "2026-07-10",
   "seasons": {
     "🌸 봄": [
       {
@@ -393,9 +393,9 @@
       "vol": 12291,
       "change": "-70%",
       "tags": [
-        "TRYSEEK",
         "샥즈",
-        "QCY"
+        "QCY",
+        "필립스"
       ],
       "cat": "무선이어폰",
       "bass_stage": "성장기"
@@ -417,9 +417,9 @@
       "vol": 31229,
       "change": "-64%",
       "tags": [
-        "ROUUO",
-        "홈플래닛",
-        "OYEAH"
+        "자일렉",
+        "OYEAH",
+        "ROUUO"
       ],
       "cat": "에어프라이어",
       "bass_stage": "성숙기"
@@ -441,9 +441,9 @@
       "vol": 9139,
       "change": "-66%",
       "tags": [
-        "NS",
         "프로틴스토리",
-        "테이크핏"
+        "테이크핏",
+        "NS"
       ],
       "cat": "프로틴",
       "bass_stage": "성장기"
@@ -498,7 +498,7 @@
         "type": "age",
         "subkey": "10대",
         "cat": "문구",
-        "trend": "상승"
+        "trend": "급상승"
       },
       {
         "rank": 2,
@@ -512,7 +512,7 @@
         "type": "age",
         "subkey": "10대",
         "cat": "전자기기",
-        "trend": "급상승"
+        "trend": "유지"
       },
       {
         "rank": 3,
@@ -526,7 +526,7 @@
         "type": "age",
         "subkey": "10대",
         "cat": "패션",
-        "trend": "유지"
+        "trend": "급상승"
       },
       {
         "rank": 4,
@@ -540,7 +540,7 @@
         "type": "age",
         "subkey": "10대",
         "cat": "가방",
-        "trend": "급상승"
+        "trend": "상승"
       },
       {
         "rank": 5,
@@ -554,7 +554,7 @@
         "type": "age",
         "subkey": "10대",
         "cat": "디지털",
-        "trend": "급상승"
+        "trend": "유지"
       },
       {
         "rank": 6,
@@ -582,7 +582,7 @@
         "type": "age",
         "subkey": "10대",
         "cat": "뷰티",
-        "trend": "상승"
+        "trend": "유지"
       }
     ],
     "20대": [
@@ -598,7 +598,7 @@
         "type": "age",
         "subkey": "20대",
         "cat": "뷰티",
-        "trend": "급상승"
+        "trend": "상승"
       },
       {
         "rank": 2,
@@ -626,7 +626,7 @@
         "type": "age",
         "subkey": "20대",
         "cat": "건강",
-        "trend": "급상승"
+        "trend": "상승"
       },
       {
         "rank": 4,
@@ -640,7 +640,7 @@
         "type": "age",
         "subkey": "20대",
         "cat": "전자기기",
-        "trend": "급상승"
+        "trend": "유지"
       },
       {
         "rank": 5,
@@ -654,7 +654,7 @@
         "type": "age",
         "subkey": "20대",
         "cat": "디지털",
-        "trend": "상승"
+        "trend": "급상승"
       },
       {
         "rank": 6,
@@ -668,7 +668,7 @@
         "type": "age",
         "subkey": "20대",
         "cat": "패션",
-        "trend": "급상승"
+        "trend": "유지"
       },
       {
         "rank": 7,
@@ -696,7 +696,7 @@
         "type": "age",
         "subkey": "20대",
         "cat": "생활",
-        "trend": "유지"
+        "trend": "급상승"
       }
     ],
     "30대": [
@@ -712,7 +712,7 @@
         "type": "age",
         "subkey": "30대",
         "cat": "유아",
-        "trend": "급상승"
+        "trend": "상승"
       },
       {
         "rank": 2,
@@ -740,7 +740,7 @@
         "type": "age",
         "subkey": "30대",
         "cat": "건강",
-        "trend": "유지"
+        "trend": "상승"
       },
       {
         "rank": 4,
@@ -754,7 +754,7 @@
         "type": "age",
         "subkey": "30대",
         "cat": "모빌리티",
-        "trend": "유지"
+        "trend": "급상승"
       },
       {
         "rank": 5,
@@ -782,7 +782,7 @@
         "type": "age",
         "subkey": "30대",
         "cat": "유아용품",
-        "trend": "상승"
+        "trend": "급상승"
       },
       {
         "rank": 7,
@@ -810,7 +810,7 @@
         "type": "age",
         "subkey": "30대",
         "cat": "패션",
-        "trend": "유지"
+        "trend": "급상승"
       }
     ],
     "40대": [
@@ -826,7 +826,7 @@
         "type": "age",
         "subkey": "40대",
         "cat": "건강",
-        "trend": "상승"
+        "trend": "유지"
       },
       {
         "rank": 2,
@@ -854,7 +854,7 @@
         "type": "age",
         "subkey": "40대",
         "cat": "가전",
-        "trend": "유지"
+        "trend": "급상승"
       },
       {
         "rank": 4,
@@ -868,7 +868,7 @@
         "type": "age",
         "subkey": "40대",
         "cat": "주방",
-        "trend": "유지"
+        "trend": "급상승"
       },
       {
         "rank": 5,
@@ -896,7 +896,7 @@
         "type": "age",
         "subkey": "40대",
         "cat": "아웃도어",
-        "trend": "유지"
+        "trend": "급상승"
       },
       {
         "rank": 7,
@@ -924,7 +924,7 @@
         "type": "age",
         "subkey": "40대",
         "cat": "자동차",
-        "trend": "상승"
+        "trend": "급상승"
       }
     ],
     "50대+": [
@@ -940,7 +940,7 @@
         "type": "age",
         "subkey": "50대+",
         "cat": "건강기기",
-        "trend": "상승"
+        "trend": "유지"
       },
       {
         "rank": 2,
@@ -954,7 +954,7 @@
         "type": "age",
         "subkey": "50대+",
         "cat": "스포츠",
-        "trend": "급상승"
+        "trend": "유지"
       },
       {
         "rank": 3,
@@ -968,7 +968,7 @@
         "type": "age",
         "subkey": "50대+",
         "cat": "건강식품",
-        "trend": "급상승"
+        "trend": "상승"
       },
       {
         "rank": 4,
@@ -982,7 +982,7 @@
         "type": "age",
         "subkey": "50대+",
         "cat": "생활",
-        "trend": "상승"
+        "trend": "급상승"
       },
       {
         "rank": 5,
@@ -996,7 +996,7 @@
         "type": "age",
         "subkey": "50대+",
         "cat": "전자기기",
-        "trend": "유지"
+        "trend": "급상승"
       },
       {
         "rank": 6,
@@ -1010,7 +1010,7 @@
         "type": "age",
         "subkey": "50대+",
         "cat": "건강",
-        "trend": "상승"
+        "trend": "급상승"
       },
       {
         "rank": 7,
@@ -1024,7 +1024,7 @@
         "type": "age",
         "subkey": "50대+",
         "cat": "주방",
-        "trend": "유지"
+        "trend": "급상승"
       },
       {
         "rank": 8,
@@ -1097,10 +1097,10 @@
       {
         "rank": 1,
         "name": "신지모루 에어클로 휴대폰 케이스",
-        "seller": "쿠팡 직영",
+        "seller": "로켓배송 판매자",
         "sales": 4971560,
         "change": "+78%",
-        "reviews": 4.6,
+        "reviews": 4.7,
         "img": "📱",
         "url": "https://www.coupang.com/np/search?q=폰케이스"
       },
@@ -1117,20 +1117,20 @@
       {
         "rank": 3,
         "name": "탐사 국내 생산 포켓용 핫팩 90g, 30개",
-        "seller": "마켓플레이스",
+        "seller": "쿠팡 직영",
         "sales": 4592280,
         "change": "+52%",
-        "reviews": 4.6,
+        "reviews": 4.9,
         "img": "♨️",
         "url": "https://www.coupang.com/np/search?q=핫팩"
       },
       {
         "rank": 4,
         "name": "HanilMedical 탄소열선 고급 전기요 ",
-        "seller": "마켓플레이스",
+        "seller": "공식스토어",
         "sales": 2898600,
         "change": "+62%",
-        "reviews": 4.6,
+        "reviews": 4.5,
         "img": "📦",
         "url": "https://www.coupang.com/np/search?q=전기장판"
       },
@@ -1140,7 +1140,7 @@
         "seller": "마켓플레이스",
         "sales": 2184520,
         "change": "+3%",
-        "reviews": 4.9,
+        "reviews": 4.8,
         "img": "🧴",
         "url": "https://www.coupang.com/np/search?q=곰팡이제거제"
       },
@@ -1157,7 +1157,7 @@
       {
         "rank": 7,
         "name": "더단백 드링크 초코, 250ml, 18개",
-        "seller": "마켓플레이스",
+        "seller": "쿠팡 직영",
         "sales": 1772400,
         "change": "+30%",
         "reviews": 4.7,
@@ -1167,7 +1167,7 @@
       {
         "rank": 8,
         "name": "스탠리 퀜처 H2.0 플로우스테이트 텀블러, ",
-        "seller": "마켓플레이스",
+        "seller": "공식스토어",
         "sales": 1690720,
         "change": "+9%",
         "reviews": 4.6,
@@ -1177,20 +1177,20 @@
       {
         "rank": 9,
         "name": "스탠리 퀜처 H2.0 플로우스테이트 텀블러, ",
-        "seller": "마켓플레이스",
+        "seller": "공식스토어",
         "sales": 1690720,
         "change": "+9%",
-        "reviews": 4.6,
+        "reviews": 4.7,
         "img": "☕",
         "url": "https://www.coupang.com/np/search?q=스탠리텀블러"
       },
       {
         "rank": 10,
         "name": "QCY 블루투스 이어폰, QCY-T13 APP",
-        "seller": "마켓플레이스",
+        "seller": "로켓배송 판매자",
         "sales": 1530120,
         "change": "+69%",
-        "reviews": 4.9,
+        "reviews": 4.5,
         "img": "🎧",
         "url": "https://www.coupang.com/np/search?q=무선이어폰"
       }
@@ -1199,10 +1199,10 @@
       {
         "rank": 1,
         "name": "신지모루 에어클로 휴대폰 케이스",
-        "seller": "쿠팡 직영",
+        "seller": "로켓배송 판매자",
         "sales": 19886240,
         "change": "+78%",
-        "reviews": 4.6,
+        "reviews": 4.7,
         "img": "📱",
         "url": "https://www.coupang.com/np/search?q=폰케이스"
       },
@@ -1219,20 +1219,20 @@
       {
         "rank": 3,
         "name": "탐사 국내 생산 포켓용 핫팩 90g, 30개",
-        "seller": "마켓플레이스",
+        "seller": "쿠팡 직영",
         "sales": 18369120,
         "change": "+52%",
-        "reviews": 4.6,
+        "reviews": 4.9,
         "img": "♨️",
         "url": "https://www.coupang.com/np/search?q=핫팩"
       },
       {
         "rank": 4,
         "name": "HanilMedical 탄소열선 고급 전기요 ",
-        "seller": "마켓플레이스",
+        "seller": "공식스토어",
         "sales": 11594400,
         "change": "+62%",
-        "reviews": 4.6,
+        "reviews": 4.5,
         "img": "📦",
         "url": "https://www.coupang.com/np/search?q=전기장판"
       },
@@ -1242,7 +1242,7 @@
         "seller": "마켓플레이스",
         "sales": 8738080,
         "change": "+3%",
-        "reviews": 4.9,
+        "reviews": 4.8,
         "img": "🧴",
         "url": "https://www.coupang.com/np/search?q=곰팡이제거제"
       },
@@ -1259,7 +1259,7 @@
       {
         "rank": 7,
         "name": "더단백 드링크 초코, 250ml, 18개",
-        "seller": "마켓플레이스",
+        "seller": "쿠팡 직영",
         "sales": 7089600,
         "change": "+30%",
         "reviews": 4.7,
@@ -1269,7 +1269,7 @@
       {
         "rank": 8,
         "name": "스탠리 퀜처 H2.0 플로우스테이트 텀블러, ",
-        "seller": "마켓플레이스",
+        "seller": "공식스토어",
         "sales": 6762880,
         "change": "+9%",
         "reviews": 4.6,
@@ -1279,20 +1279,20 @@
       {
         "rank": 9,
         "name": "스탠리 퀜처 H2.0 플로우스테이트 텀블러, ",
-        "seller": "마켓플레이스",
+        "seller": "공식스토어",
         "sales": 6762880,
         "change": "+9%",
-        "reviews": 4.6,
+        "reviews": 4.7,
         "img": "☕",
         "url": "https://www.coupang.com/np/search?q=스탠리텀블러"
       },
       {
         "rank": 10,
         "name": "QCY 블루투스 이어폰, QCY-T13 APP",
-        "seller": "마켓플레이스",
+        "seller": "로켓배송 판매자",
         "sales": 6120480,
         "change": "+69%",
-        "reviews": 4.9,
+        "reviews": 4.5,
         "img": "🎧",
         "url": "https://www.coupang.com/np/search?q=무선이어폰"
       }
@@ -1619,63 +1619,7 @@
       "제습기": 8.9
     }
   ],
-  "globalTrends": [
-    {
-      "keyword_en": "Stanley tumbler",
-      "keyword_kr": "스탠리텀블러",
-      "global_score": 58.2,
-      "kr_score": 3.8,
-      "global_change": "-21%",
-      "kr_change": "-62%",
-      "stage": "📊 모니터링",
-      "bass_stage": "도입기 (Innovators)",
-      "img": "☕"
-    },
-    {
-      "keyword_en": "air fryer",
-      "keyword_kr": "에어프라이어",
-      "global_score": 17.2,
-      "kr_score": 17.2,
-      "global_change": "-54%",
-      "kr_change": "-54%",
-      "stage": "📊 모니터링",
-      "bass_stage": "도입기 (Innovators)",
-      "img": "🎧"
-    },
-    {
-      "keyword_en": "robot vacuum",
-      "keyword_kr": "로봇청소기",
-      "global_score": 18.0,
-      "kr_score": 18.0,
-      "global_change": "-54%",
-      "kr_change": "-54%",
-      "stage": "📊 모니터링",
-      "bass_stage": "도입기 (Innovators)",
-      "img": "🤖"
-    },
-    {
-      "keyword_en": "protein shake",
-      "keyword_kr": "프로틴쉐이크",
-      "global_score": 8.8,
-      "kr_score": 8.8,
-      "global_change": "-47%",
-      "kr_change": "-47%",
-      "stage": "📊 모니터링",
-      "bass_stage": "도입기 (Innovators)",
-      "img": "💪"
-    },
-    {
-      "keyword_en": "LED strip lights",
-      "keyword_kr": "LED무드등",
-      "global_score": 1.8,
-      "kr_score": 1.8,
-      "global_change": "-82%",
-      "kr_change": "-82%",
-      "stage": "📊 모니터링",
-      "bass_stage": "도입기 (Innovators)",
-      "img": "💡"
-    }
-  ],
+  "globalTrends": [],
   "trendBubbles": [
     {
       "keyword": "무선이어폰",
@@ -1837,76 +1781,6 @@
       "change": "-68%",
       "femaleRatio": 95,
       "country": "kr"
-    },
-    {
-      "keyword": "무선이어폰",
-      "vol": 5470,
-      "change": "+0%",
-      "femaleRatio": 50,
-      "country": "us"
-    },
-    {
-      "keyword": "로봇청소기",
-      "vol": 3925,
-      "change": "+0%",
-      "femaleRatio": 50,
-      "country": "us"
-    },
-    {
-      "keyword": "에어프라이어",
-      "vol": 7729,
-      "change": "+0%",
-      "femaleRatio": 50,
-      "country": "us"
-    },
-    {
-      "keyword": "프로틴",
-      "vol": 7022,
-      "change": "+0%",
-      "femaleRatio": 50,
-      "country": "us"
-    },
-    {
-      "keyword": "폰케이스",
-      "vol": 6800,
-      "change": "+0%",
-      "femaleRatio": 50,
-      "country": "us"
-    },
-    {
-      "keyword": "무선이어폰",
-      "vol": 8132,
-      "change": "+0%",
-      "femaleRatio": 50,
-      "country": "jp"
-    },
-    {
-      "keyword": "로봇청소기",
-      "vol": 6425,
-      "change": "+0%",
-      "femaleRatio": 50,
-      "country": "jp"
-    },
-    {
-      "keyword": "에어프라이어",
-      "vol": 6919,
-      "change": "+0%",
-      "femaleRatio": 50,
-      "country": "jp"
-    },
-    {
-      "keyword": "프로틴",
-      "vol": 8383,
-      "change": "+0%",
-      "femaleRatio": 50,
-      "country": "jp"
-    },
-    {
-      "keyword": "폰케이스",
-      "vol": 7161,
-      "change": "+0%",
-      "femaleRatio": 50,
-      "country": "jp"
     }
   ],
   "categoryCompetition": [],
