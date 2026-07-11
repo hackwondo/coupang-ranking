@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-쿠팡 파트너스 링크 자동 생성기 v3
+쿠팡 파트너스 링크 자동 생성기 v4
+- JavaScript 클릭으로 배너 가림 문제 해결
 """
 
 import undetected_chromedriver as uc
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 import time
 import json
+import re
 
 KEYWORDS = [
     "미세먼지마스크", "가디건", "피크닉매트", "공기청정기",
@@ -22,28 +23,13 @@ KEYWORDS = [
     "혈압계", "등산스틱", "홍삼", "무릎보호대",
     "반려식물자동급수기", "노트북거치대", "펫자동급식기",
     "칫솔살균기", "모니터받침대",
+    # ---- 신규 추가 (마켓퀀트 트렌드 상품 대응) ----
+    "물티슈", "멀티비타민", "철제선반", "베이비로션",
+    "식기세척기", "수유브라", "마사지기", "와인오프너",
+    "수면유도안경", "견과류선물세트", "요추쿠션", "태블릿PC",
+    "저당밥솥", "운동화", "포토앨범", "그립톡",
+    "크롭티셔츠", "마커틴트",
 ]
-
-def find_partner_url(driver):
-    """페이지에서 link.coupang.com URL 찾기"""
-    # 방법1: 모든 input에서 찾기
-    for inp in driver.find_elements(By.TAG_NAME, "input"):
-        val = inp.get_attribute("value") or ""
-        if "link.coupang.com" in val:
-            return val
-    # 방법2: 페이지 전체 텍스트에서 찾기
-    import re
-    page = driver.page_source
-    matches = re.findall(r'https://link\.coupang\.com/a/[A-Za-z0-9]+', page)
-    if matches:
-        return matches[-1]
-    # 방법3: span, div 등에서 찾기
-    for tag in ["span", "div", "p", "a"]:
-        for el in driver.find_elements(By.TAG_NAME, tag):
-            txt = el.text or ""
-            if "link.coupang.com" in txt:
-                return txt.strip()
-    return None
 
 def main():
     print("크롬 실행...")
@@ -52,7 +38,7 @@ def main():
     driver = uc.Chrome(options=opts)
 
     driver.get("https://partners.coupang.com/#affiliate/ws/link-to-any-page")
-    
+
     print("")
     print("=" * 50)
     print("  크롬에서 파트너스 로그인하세요")
@@ -61,80 +47,84 @@ def main():
     input("  엔터: ")
     time.sleep(2)
 
-    # 먼저 수동 테스트: 1개만 해보기
-    print("")
-    print("=" * 50)
-    print("  수동 테스트: 아무 URL 넣고 링크 생성을 눌러보세요")
-    print("  파트너스 URL이 나타나면 엔터")
-    print("=" * 50)
-    input("  엔터: ")
-    
-    # 생성된 링크 찾기 테스트
-    url = find_partner_url(driver)
-    if url:
-        print("  찾음! -> " + url)
-    else:
-        print("  못 찾음. 페이지 구조 덤프:")
-        inputs = driver.find_elements(By.TAG_NAME, "input")
-        print("  input %d개:" % len(inputs))
-        for i, inp in enumerate(inputs):
-            val = inp.get_attribute("value") or ""
-            if val:
-                print("    [%d] %s" % (i, val[:80]))
-    
-    print("")
-    ok = input("  자동 수집 시작할까요? (y/n): ")
-    if ok.lower() != "y":
-        driver.quit()
-        return
-
     results = {}
     total = len(KEYWORDS)
     print("")
-    print("총 %d개 시작! (각 4초 간격)" % total)
+    print("총 %d개 시작!" % total)
     print("")
-    
+
     for idx, kw in enumerate(KEYWORDS, 1):
         search_url = "https://www.coupang.com/np/search?q=" + kw
         print("  [%d/%d] %s..." % (idx, total, kw), end=" ", flush=True)
-        
+
         try:
-            # input#url 에 URL 입력
-            inp = driver.find_element(By.ID, "url")
-            inp.click()
-            time.sleep(0.2)
-            inp.send_keys(Keys.CONTROL, "a")
-            time.sleep(0.1)
-            inp.send_keys(search_url)
-            time.sleep(0.5)
-            
-            # 링크 생성 버튼 클릭
-            buttons = driver.find_elements(By.TAG_NAME, "button")
-            for btn in buttons:
-                if "링크 생성" in (btn.text or ""):
-                    btn.click()
+            # 생성 전에 이미 화면에 떠 있는 링크 목록 기록 (신규 링크 판별용)
+            before_links = set(re.findall(
+                r'https://link\.coupang\.com/a/[A-Za-z0-9]+', driver.page_source
+            ))
+
+            # React 컨트롤드 인풋은 .value만 바꾸면 내부 state가 갱신되지 않으므로
+            # 네이티브 setter를 통해 값을 넣고 input 이벤트를 발생시킴
+            driver.execute_script("""
+                var inp = document.getElementById('url');
+                if (inp) {
+                    var nativeSetter = Object.getOwnPropertyDescriptor(
+                        window.HTMLInputElement.prototype, 'value'
+                    ).set;
+                    nativeSetter.call(inp, arguments[0]);
+                    inp.dispatchEvent(new Event('input', {bubbles: true}));
+                    inp.dispatchEvent(new Event('change', {bubbles: true}));
+                }
+            """, search_url)
+            time.sleep(0.7)
+
+            # 값이 실제로 반영됐는지 확인
+            actual_val = driver.execute_script(
+                "return document.getElementById('url') ? document.getElementById('url').value : '';"
+            )
+            if search_url not in actual_val:
+                print("FAIL (입력값 반영 안됨: %s)" % actual_val[:30])
+                time.sleep(1)
+                continue
+
+            # JavaScript로 버튼 클릭 (배너 가림 우회)
+            driver.execute_script("""
+                var buttons = document.querySelectorAll('button');
+                for (var b of buttons) {
+                    if (b.textContent.includes('링크 생성')) {
+                        b.click();
+                        break;
+                    }
+                }
+            """)
+
+            # 새 링크가 나타날 때까지 최대 8초 폴링 (이전 링크와 달라야 함)
+            new_url = None
+            for _ in range(16):
+                time.sleep(0.5)
+                current_links = set(re.findall(
+                    r'https://link\.coupang\.com/a/[A-Za-z0-9]+', driver.page_source
+                ))
+                diff = current_links - before_links
+                if diff:
+                    new_url = sorted(diff)[-1]
                     break
-            
-            # 충분히 대기
-            time.sleep(4)
-            
-            # 생성된 링크 찾기
-            url = find_partner_url(driver)
-            if url:
-                results[kw] = url
-                print("OK: " + url)
+
+            if new_url:
+                results[kw] = new_url
+                print("OK: " + new_url)
             else:
-                print("FAIL")
-            
-            time.sleep(1)
-            
+                print("FAIL (타임아웃, 새 링크 없음)")
+
+            time.sleep(1.0)
+
         except Exception as e:
             print("ERROR: " + str(e)[:50])
-            time.sleep(3)
+            time.sleep(2)
             continue
-    
+
     driver.quit()
-    
+
     # 기존 링크 합치기
     existing = {
         "선풍기": "https://link.coupang.com/a/fhbfTzeJdQ",
@@ -148,22 +138,25 @@ def main():
         "제습기": "https://link.coupang.com/a/fhbFlsNR3A",
         "핫팩": "https://link.coupang.com/a/fhbGDkhnkz",
     }
-    
+
     all_links = {}
     all_links.update(existing)
     all_links.update(results)
-    
+
     print("")
     print("=" * 50)
-    print("총 %d개 링크!" % len(all_links))
+    print("총 %d개 링크 수집!" % len(all_links))
+    print("  기존: %d개" % len(existing))
+    print("  신규: %d개" % len(results))
+    print("  실패: %d개" % (total - len(results)))
     print("=" * 50)
-    
+
     # JS 파일 생성
     lines = []
     for kw, link in all_links.items():
         lines.append('  "%s": "%s"' % (kw, link))
     links_str = ",\n".join(lines)
-    
+
     js_code = 'const LINKS = {\n' + links_str + ',\n};\n'
     js_code += 'const DEFAULT = "https://link.coupang.com/a/fhbVQhahoq";\n\n'
     js_code += 'function find(text) {\n'
@@ -184,16 +177,18 @@ def main():
     js_code += '    window.gtag("event", "affiliate_click", { event_category: category, event_label: label });\n'
     js_code += '  }\n'
     js_code += '}\n'
-    
+
     with open("lib/affiliate.js", "w", encoding="utf-8") as f:
         f.write(js_code)
-    print("lib/affiliate.js 저장!")
-    
+    print("")
+    print("lib/affiliate.js 저장! (%d개 링크)" % len(all_links))
+
     with open("data/affiliate_links.json", "w", encoding="utf-8") as f:
         json.dump(all_links, f, ensure_ascii=False, indent=2)
     print("data/affiliate_links.json 백업 저장")
     print("")
     print("git add . && git commit -m 'all links' && git push")
+
 
 if __name__ == "__main__":
     main()
