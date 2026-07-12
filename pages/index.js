@@ -367,12 +367,15 @@ function GlobalTrendTab({ globalTrends }) {
     </Insight>
     {items.length > 0 ? (
       <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(320px,1fr))", gap:"14px" }}>
-        {items.map((item,i)=>(
+        {items.map((item,i)=>{
+          const link=makeSearchLink(item.keyword_kr,"global_trend");
+          return (
           <div key={i} style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:"12px", padding:"18px" }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"12px" }}>
               <div style={{ display:"flex", gap:"10px", alignItems:"center" }}>
                 <span style={{ fontSize:"28px" }}>{item.img}</span>
-                <div><div style={{ fontSize:F.card, fontWeight:700, color:C.text }}>{item.keyword_kr}</div>
+                <div><a href={link} target="_blank" rel="noopener noreferrer nofollow" onClick={()=>trackClick("global_trend",item.keyword_kr)}
+                    style={{ fontSize:F.card, fontWeight:700, color:C.text, textDecoration:"none" }}>{item.keyword_kr}</a>
                   <div style={{ fontSize:F.small, color:C.sub }}>{item.keyword_en}</div></div>
               </div>
               <span style={{ fontSize:F.small, fontWeight:600, padding:"4px 12px", borderRadius:"12px",
@@ -391,8 +394,12 @@ function GlobalTrendTab({ globalTrends }) {
                 <div style={{ fontSize:F.tag, color:item.kr_change?.startsWith("+")?C.green:C.red, fontWeight:600 }}>{item.kr_change}</div>
               </div>
             </div>
-            <div style={{ fontSize:F.small, color:C.purple, fontWeight:600 }}>📊 Bass 단계: {item.bass_stage}</div>
-          </div>))}
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+              <div style={{ fontSize:F.small, color:C.purple, fontWeight:600 }}>📊 Bass 단계: {item.bass_stage}</div>
+              <a href={link} target="_blank" rel="noopener noreferrer nofollow" onClick={()=>trackClick("global_trend",item.keyword_kr)}
+                style={{ fontSize:F.small, color:C.primary, fontWeight:600, textDecoration:"none" }}>쿠팡에서 검색 →</a>
+            </div>
+          </div>);})}
       </div>
     ) : (
       <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:"12px", padding:"24px", textAlign:"center", color:C.sub, fontSize:F.body }}>
