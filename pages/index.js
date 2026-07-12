@@ -409,6 +409,55 @@ function GlobalTrendTab({ globalTrends }) {
   </>);
 }
 
+// ─── 탭 8-2: 패션 악세사리 뉴스 트렌드 (NEW) ───
+function FashionNewsTab({ fashionNewsTrend }) {
+  const items = fashionNewsTrend || [];
+  return (<>
+    <Insight title="패션 악세사리 뉴스 트렌드 — 화제도 기반 카테고리 랭킹"
+      refs="네이버 뉴스검색 API 기반 카테고리별 최근 언급 빈도 분석">
+      최근 패션 뉴스에서 시계, 목걸이, 가방 등 악세사리 카테고리가 얼마나 자주 언급되는지 집계한 지표입니다.
+      기사 건수가 많을수록 화제도가 높다고 판단하며, 대표 기사는 원문 링크로 확인할 수 있습니다.
+      (특정 인물·브랜드는 노출하지 않고 카테고리 단위로만 분석합니다.)
+    </Insight>
+    {items.length > 0 ? (
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(300px,1fr))", gap:"14px" }}>
+        {items.map((item,i)=>{
+          const link=makeSearchLink(item.category,"fashion_news");
+          return (
+          <div key={i} style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:"12px", padding:"18px" }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"10px" }}>
+              <div style={{ display:"flex", gap:"10px", alignItems:"center" }}>
+                <span style={{ fontSize:"28px" }}>{item.img}</span>
+                <a href={link} target="_blank" rel="noopener noreferrer nofollow" onClick={()=>trackClick("fashion_news",item.category)}
+                  style={{ fontSize:F.card, fontWeight:700, color:C.text, textDecoration:"none" }}>{item.category}</a>
+              </div>
+              <span style={{ fontSize:F.small, fontWeight:600, padding:"4px 12px", borderRadius:"12px",
+                background:i<3?"#FFE3E3":"#E7F5FF", color:i<3?C.red:C.blue }}>
+                🔥 관련기사 {item.article_count}건
+              </span>
+            </div>
+            <div style={{ fontSize:F.small, color:C.sub, marginBottom:"12px" }}>{item.blurb}</div>
+            <div style={{ background:"#F8F9FA", borderRadius:"8px", padding:"10px 12px", marginBottom:"12px" }}>
+              <div style={{ fontSize:F.tag, color:C.sub, marginBottom:"4px" }}>📰 대표 기사</div>
+              <a href={item.source_link} target="_blank" rel="noopener noreferrer"
+                style={{ fontSize:F.small, color:C.text, textDecoration:"none", fontWeight:500 }}>
+                {item.source_title} →
+              </a>
+            </div>
+            <a href={link} target="_blank" rel="noopener noreferrer nofollow" onClick={()=>trackClick("fashion_news",item.category)}
+              style={{ display:"block", textAlign:"right", fontSize:F.small, color:C.primary, fontWeight:600, textDecoration:"none" }}>
+              쿠팡에서 {item.category} 검색 →
+            </a>
+          </div>);})}
+      </div>
+    ) : (
+      <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:"12px", padding:"24px", textAlign:"center", color:C.sub, fontSize:F.body }}>
+        패션 뉴스 트렌드 데이터 수집 중입니다. 다음 업데이트에 반영됩니다.
+      </div>
+    )}
+  </>);
+}
+
 // ─── 탭 9: 카테고리 경쟁도 (NEW) ─────────
 function CategoryCompTab({ categoryCompetition }) {
   const items = categoryCompetition || [];
@@ -760,6 +809,7 @@ const TABS = [
   { id:"source", label:"해외소싱", icon:"🌏" },
   { id:"blue", label:"블루오션", icon:"🔵" },
   { id:"global", label:"글로벌", icon:"🌐" },
+  { id:"fashion", label:"패션뉴스", icon:"👔" },
   { id:"compete", label:"경쟁도", icon:"📊" },
   { id:"battle", label:"키워드대결", icon:"⚔️" },
   { id:"bubble", label:"트렌드맵", icon:"🫧" },
@@ -815,6 +865,7 @@ export default function Home({ data }) {
       {tab==="source" && <GlobalSourcingTab globalSourcing={data.globalSourcing}/>}
       {tab==="blue" && <BlueOceanTab blueOcean={data.blueOcean}/>}
       {tab==="global" && <GlobalTrendTab globalTrends={data.globalTrends}/>}
+      {tab==="fashion" && <FashionNewsTab fashionNewsTrend={data.fashionNewsTrend}/>}
       {tab==="compete" && <CategoryCompTab categoryCompetition={data.categoryCompetition}/>}
       {tab==="battle" && <KeywordBattleTab trending={data.trending}/>}
       {tab==="bubble" && <TrendBubbleTab trendBubbles={data.trendBubbles}/>}
@@ -832,6 +883,7 @@ export default function Home({ data }) {
           <p>상품 데이터: 주요 이커머스 플랫폼 실시간 크롤링 (상품명, 가격, 리뷰 수, 평점, 배송 유형)</p>
           <p>검색 트렌드: 네이버 데이터랩 API 기반 월별 검색량, 연령대/성별 분석 (최대 2년치 시계열)</p>
           <p>글로벌 트렌드: Google Trends API 기반 글로벌 vs 한국 검색량 교차 분석</p>
+          <p>패션 뉴스 트렌드: 네이버 뉴스검색 API 기반 악세사리 카테고리별 최근 언급 빈도 분석 (특정 인물·브랜드 비노출)</p>
           <p>계절성 스코어: 현재 검색지수 ÷ 과거 2년 피크 검색지수 × 100 (STL 분해법 응용)</p>
           <p>블루오션 스코어: 검색 수요 ÷ 활성 판매자 수 기반 기회 지수 (Kim & Mauborgne, 2005)</p>
           <p>시장집중도: HHI(Herfindahl-Hirschman Index) — 미국 법무부 기준 적용</p>

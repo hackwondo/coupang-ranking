@@ -81,6 +81,15 @@ CATEGORY_KW = ["가전","패션","뷰티","식품","건강","스포츠","주방"
 GLOBAL_KW_EN = ["Stanley tumbler","air fryer","robot vacuum","protein shake","LED strip lights"]
 GLOBAL_KW_KR = ["스탠리텀블러","에어프라이어","로봇청소기","프로틴쉐이크","LED무드등"]
 
+# 패션 악세사리 뉴스 트렌드용 카테고리 (브랜드명 X, 카테고리만 — 기존 LINKS 사전과 연동)
+FASHION_ACCESSORY_KW = ["시계","목걸이","가방","선글라스","귀걸이","반지","벨트","스카프","머플러","모자","지갑","팔찌"]
+
+import html as _html
+def strip_html(text):
+    """네이버 뉴스 API 응답의 <b> 하이라이트 태그 및 HTML 엔티티 제거"""
+    text = re.sub(r'<[^>]+>', '', text or '')
+    return _html.unescape(text).strip()
+
 EMOJI = {"캠핑":"🏕️","마스크":"😷","가디건":"👚","매트":"🧺","선풍기":"🌀","래쉬":"🏄","아이스":"🧊","차단":"☀️","김장":"🥬","코트":"🧥","텀블러":"☕","가습":"💧","손난로":"🔥","패딩":"🧥","온수":"🛏️","핫팩":"♨️","우산":"☂️","제습":"💧","방수":"👟","건조":"👕","이어":"🎧","청소기":"🤖","프라이어":"🍟","닌텐도":"🎮","프로틴":"💪","케이스":"📱","포토":"📸","스티커":"✏️","세럼":"✨","물티슈":"👶","글루코":"💪","골프":"⛳","혈압":"❤️","등산":"🥾","비타민":"💊","화로":"🔥","급수":"🌱","급식":"🐱","얼음":"🧊","거치":"📱","독서":"📖","과자":"🍪","립틴트":"💋","백팩":"🎒","빔프":"📽️","충전":"🔋","반팔":"👕","무드등":"💡","안마":"💆","와인":"🍷","안경":"👓","킥보드":"🛴","선반":"🏠","보습":"🧴","식기":"🍽️","견과":"🥜","홍삼":"🧧","쿠션":"🪑","태블릿":"📱","무릎":"🦵","밥솥":"🍚","워킹":"👟","살균":"🦠","모니터":"🖥️","테이블":"🪑","스탠리":"☕","다이슨":"💇","곰팡이":"🧴","모기":"🦟","전기장판":"🛏️","단풍":"🍁","필터":"🌀","LED":"💡"}
 def emoji(n):
     for k,v in EMOJI.items():
@@ -149,6 +158,51 @@ def google_trends(kw_en, kw_kr):
             except Exception as e:
                 print(f"    {kr}: 실패 ({str(e)[:30]})"); continue
     except Exception as e: print(f"  [!] 구글 오류: {e}")
+    return results
+
+# ═══ 패션 악세사리 뉴스 트렌드 (네이버 뉴스검색 API) ═══
+def naver_fashion_news_trend(items=FASHION_ACCESSORY_KW, per_item=5, days=7):
+    """
+    카테고리별로 '{아이템} 착용' 뉴스를 검색해서, 최신 기사 건수와
+    대표 기사 1건의 '원문 링크'만 가져온다.
+    ⚠️ 저작권 때문에 기사 본문/제목을 우리 문장으로 재가공(요약)하지 않고,
+       기사 제목은 원문 링크의 앵커 텍스트로만 사용한다 (표준 뉴스 인용 방식).
+       사람 이름은 추출/노출하지 않는다 (특정인 상업적 이용 리스크 방지).
+    """
+    if not HAS_NAVER: return []
+    print("\n  📰 패션 악세사리 뉴스 트렌드 수집...")
+    results = []
+    for item in items:
+        try:
+            r = requests.get(
+                "https://openapi.naver.com/v1/search/news.json",
+                headers=nv_headers(),
+                params={"query": f"{item} 착용", "display": per_item, "sort": "date"},
+                timeout=10
+            )
+            if r.status_code != 200:
+                print(f"    {item}: 실패 (status {r.status_code})")
+                continue
+            articles = r.json().get("items", [])
+            if not articles:
+                continue
+            latest = articles[0]
+            results.append({
+                "category": item,
+                "img": emoji(item),
+                "article_count": len(articles),
+                "blurb": f"최근 {days}일간 '{item}' 관련 패션 기사 {len(articles)}건",
+                "source_title": strip_html(latest.get("title","")),
+                "source_link": latest.get("originallink") or latest.get("link",""),
+                "pub_date": latest.get("pubDate",""),
+            })
+            print(f"    {item}: 관련기사 {len(articles)}건")
+            time.sleep(0.3)
+        except Exception as e:
+            print(f"    {item}: 실패 ({str(e)[:30]})")
+            continue
+    # 기사 건수 많은 순 = 화제도 높은 순
+    results.sort(key=lambda x: x["article_count"], reverse=True)
     return results
 
 # ═══ 크롤링 ═══
@@ -251,7 +305,7 @@ def main():
     # ═══ 어필리에이트 링크 갭 체크 ═══
     # 위에서 모은 모든 키워드 중 쿠팡 파트너스 링크가 아직 없는 것을 찾아서
     # data/missing_keywords.json 으로 저장 (gen_affiliate_links_3.py 가 이걸 읽어서 채움)
-    all_keywords = sorted(set(kw for _, kw, _, _ in all_tasks))
+    all_keywords = sorted(set(kw for _, kw, _, _ in all_tasks) | set(FASHION_ACCESSORY_KW))
     try:
         with open("data/affiliate_links.json","r",encoding="utf-8") as f:
             existing_links = json.load(f)
@@ -362,6 +416,8 @@ def main():
 
     global_trends = google_trends(GLOBAL_KW_EN, GLOBAL_KW_KR) if HAS_GOOGLE else []
 
+    fashion_news_trend = naver_fashion_news_trend(FASHION_ACCESSORY_KW) if HAS_NAVER else []
+
     # 트렌드 버블 데이터 (성별 검색 비중)
     trend_bubbles = []
     if HAS_NAVER:
@@ -470,7 +526,8 @@ def main():
                     {"rank":5,"name":"캠핑 LED 랜턴","cat":"아웃도어","margin":"45~60%","delivery":"14~25일","risk":"중간","score":72,"img":"🔦"},
                 ],
             },
-            "monthlyTrends":monthly_trends,"globalTrends":global_trends,"trendBubbles":trend_bubbles,"categoryCompetition":[],"blueOcean":[]}
+            "monthlyTrends":monthly_trends,"globalTrends":global_trends,"trendBubbles":trend_bubbles,
+            "fashionNewsTrend":fashion_news_trend,"categoryCompetition":[],"blueOcean":[]}
 
     all_products=[]
 
@@ -593,6 +650,7 @@ def main():
     print(f"🔵 블루오션: {len(output['blueOcean'])}개")
     print(f"📈 월별차트: {len(output.get('monthlyTrends',[]))}개월")
     print(f"🌐 글로벌: {len(output.get('globalTrends',[]))}개")
+    print(f"👔 패션뉴스: {len(output.get('fashionNewsTrend',[]))}개")
     print(f"📊 경쟁도: {len(output.get('categoryCompetition',[]))}개 카테고리")
     print(f"🫧 버블맵: {len(output.get('trendBubbles',[]))}개 키워드")
     print(f"\n💡 다음 실행 시: 7일 이내 키워드는 캐시 사용 → 빠르게 완료")
