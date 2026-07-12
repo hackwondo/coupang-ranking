@@ -169,8 +169,11 @@ def naver_fashion_news_trend(items=FASHION_ACCESSORY_KW, per_item=5, days=7):
        기사 제목은 원문 링크의 앵커 텍스트로만 사용한다 (표준 뉴스 인용 방식).
        사람 이름은 추출/노출하지 않는다 (특정인 상업적 이용 리스크 방지).
     """
-    if not HAS_NAVER: return []
+    if not HAS_NAVER:
+        print("  [!] 패션뉴스: HAS_NAVER=False (네이버 API 키 로드 실패) → 스킵")
+        return []
     print("\n  📰 패션 악세사리 뉴스 트렌드 수집...")
+    print(f"     (NAVER_ID 앞 4자리: {NAVER_ID[:4] if NAVER_ID else '(없음)'}...)")
     results = []
     for item in items:
         try:
@@ -181,7 +184,7 @@ def naver_fashion_news_trend(items=FASHION_ACCESSORY_KW, per_item=5, days=7):
                 timeout=10
             )
             if r.status_code != 200:
-                print(f"    {item}: 실패 (status {r.status_code})")
+                print(f"    {item}: 실패 (status {r.status_code}) → 응답: {r.text[:200]}")
                 continue
             articles = r.json().get("items", [])
             if not articles:
@@ -199,7 +202,7 @@ def naver_fashion_news_trend(items=FASHION_ACCESSORY_KW, per_item=5, days=7):
             print(f"    {item}: 관련기사 {len(articles)}건")
             time.sleep(0.3)
         except Exception as e:
-            print(f"    {item}: 실패 ({str(e)[:30]})")
+            print(f"    {item}: 예외 발생 → {repr(e)[:150]}")
             continue
     # 기사 건수 많은 순 = 화제도 높은 순
     results.sort(key=lambda x: x["article_count"], reverse=True)
