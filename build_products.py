@@ -248,6 +248,27 @@ def main():
     for cat in CATEGORY_KW:
         all_tasks.append((f"cat_{cat}", cat, 30, {"type":"category","cat":cat}))
 
+    # ═══ 어필리에이트 링크 갭 체크 ═══
+    # 위에서 모은 모든 키워드 중 쿠팡 파트너스 링크가 아직 없는 것을 찾아서
+    # data/missing_keywords.json 으로 저장 (gen_affiliate_links_3.py 가 이걸 읽어서 채움)
+    all_keywords = sorted(set(kw for _, kw, _, _ in all_tasks))
+    try:
+        with open("data/affiliate_links.json","r",encoding="utf-8") as f:
+            existing_links = json.load(f)
+    except FileNotFoundError:
+        existing_links = {}
+    missing_kw = [kw for kw in all_keywords if kw not in existing_links]
+    os.makedirs("data",exist_ok=True)
+    if missing_kw:
+        with open("data/missing_keywords.json","w",encoding="utf-8") as f:
+            json.dump(missing_kw,f,ensure_ascii=False,indent=2)
+        print(f"\n  ⚠️  쿠팡 링크 없는 키워드 {len(missing_kw)}개 발견 → data/missing_keywords.json 저장")
+        print(f"     👉 gen_affiliate_links_3.py 실행해서 링크 채워주세요\n     ({', '.join(missing_kw[:10])}{' ...' if len(missing_kw)>10 else ''})")
+    else:
+        if os.path.exists("data/missing_keywords.json"):
+            os.remove("data/missing_keywords.json")
+        print(f"\n  ✅ 모든 키워드({len(all_keywords)}개)에 쿠팡 링크 있음")
+
     # 캐시 유효한 것 / 크롤링 필요한 것 분류
     need_crawl = []
     cached_count = 0

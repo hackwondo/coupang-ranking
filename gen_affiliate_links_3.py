@@ -9,29 +9,41 @@ from selenium.webdriver.common.by import By
 import time
 import json
 import re
+import os
 
-KEYWORDS = [
-    "미세먼지마스크", "가디건", "피크닉매트", "공기청정기",
-    "아이스박스", "자외선차단제", "모기퇴치",
-    "김장매트", "트렌치코트", "텀블러", "가습기",
-    "패딩", "온수매트", "전기장판", "우산",
-    "닌텐도스위치", "폰케이스", "스탠리텀블러", "다이슨에어랩",
-    "포토카드바인더", "다꾸스티커", "무선이어버드", "학생백팩", "립틴트",
-    "레티놀세럼", "빔프로젝터", "무선충전패드", "LED무드등",
-    "유아물티슈", "키즈비타민", "전동킥보드",
-    "글루코사민", "골프장갑", "안마기", "등산화",
-    "혈압계", "등산스틱", "홍삼", "무릎보호대",
-    "반려식물자동급수기", "노트북거치대", "펫자동급식기",
-    "칫솔살균기", "모니터받침대",
-    # ---- 신규 추가 (마켓퀀트 트렌드 상품 대응) ----
-    "물티슈", "멀티비타민", "철제선반", "베이비로션",
-    "식기세척기", "수유브라", "마사지기", "와인오프너",
-    "수면유도안경", "견과류선물세트", "요추쿠션", "태블릿PC",
-    "저당밥솥", "운동화", "포토앨범", "그립톡",
-    "크롭티셔츠", "마커틴트",
-]
+# ═══ 채울 키워드 자동 로드 ═══
+# build_products.py를 먼저 돌리면 data/missing_keywords.json 에
+# "쿠팡 링크가 아직 없는 키워드"만 자동으로 모아둡니다.
+# 이 파일이 있으면 그것만 읽고, 없으면 아래 KEYWORDS를 수동으로 채워서 쓰세요.
+MISSING_FILE = "data/missing_keywords.json"
+if os.path.exists(MISSING_FILE):
+    with open(MISSING_FILE, "r", encoding="utf-8") as f:
+        KEYWORDS = json.load(f)
+    print(f"'{MISSING_FILE}' 에서 {len(KEYWORDS)}개 키워드 로드")
+else:
+    # 수동 실행용 폴백 (build_products.py를 먼저 안 돌렸을 때)
+    KEYWORDS = [
+        # 여기에 링크가 필요한 새 키워드만 적어주세요
+    ]
+    print(f"'{MISSING_FILE}' 없음 — 수동으로 지정한 {len(KEYWORDS)}개 키워드로 진행")
+
+# ═══ 기존 링크 자동 로드 (덮어쓰지 않고 병합) ═══
+EXISTING_FILE = "data/affiliate_links.json"
+if os.path.exists(EXISTING_FILE):
+    with open(EXISTING_FILE, "r", encoding="utf-8") as f:
+        EXISTING_LINKS = json.load(f)
+else:
+    EXISTING_LINKS = {}
+
+# 이미 링크 있는 키워드는 크롤링 대상에서 자동 제외 (중복/재생성 방지)
+KEYWORDS = [kw for kw in KEYWORDS if kw not in EXISTING_LINKS]
 
 def main():
+    if not KEYWORDS:
+        print("")
+        print("✅ 새로 만들 링크가 없습니다 (모든 키워드에 이미 링크 있음). 종료합니다.")
+        return
+
     print("크롬 실행...")
     opts = uc.ChromeOptions()
     opts.add_argument("--lang=ko-KR")
@@ -125,28 +137,15 @@ def main():
 
     driver.quit()
 
-    # 기존 링크 합치기
-    existing = {
-        "선풍기": "https://link.coupang.com/a/fhbfTzeJdQ",
-        "무선이어폰": "https://link.coupang.com/a/fhbqIzUOei",
-        "캠핑의자": "https://link.coupang.com/a/fhbss3l6ii",
-        "래쉬가드": "https://link.coupang.com/a/fhbtkGc5HU",
-        "손난로": "https://link.coupang.com/a/fhbvrYCwWO",
-        "로봇청소기": "https://link.coupang.com/a/fhbxlihCbk",
-        "에어프라이어": "https://link.coupang.com/a/fhbDqbFYU8",
-        "프로틴": "https://link.coupang.com/a/fhbERdb3bE",
-        "제습기": "https://link.coupang.com/a/fhbFlsNR3A",
-        "핫팩": "https://link.coupang.com/a/fhbGDkhnkz",
-    }
-
+    # 기존 링크(data/affiliate_links.json) + 이번에 새로 만든 링크 합치기
     all_links = {}
-    all_links.update(existing)
+    all_links.update(EXISTING_LINKS)
     all_links.update(results)
 
     print("")
     print("=" * 50)
-    print("총 %d개 링크 수집!" % len(all_links))
-    print("  기존: %d개" % len(existing))
+    print("총 %d개 링크 보유!" % len(all_links))
+    print("  기존: %d개" % len(EXISTING_LINKS))
     print("  신규: %d개" % len(results))
     print("  실패: %d개" % (total - len(results)))
     print("=" * 50)
@@ -161,10 +160,13 @@ def main():
     js_code += 'const DEFAULT = "https://link.coupang.com/a/fhbVQhahoq";\n\n'
     js_code += 'function find(text) {\n'
     js_code += '  if (!text) return null;\n'
+    js_code += '  let bestKey = null, bestVal = null;\n'
     js_code += '  for (const [k, v] of Object.entries(LINKS)) {\n'
-    js_code += '    if (text.includes(k)) return v;\n'
+    js_code += '    if (text.includes(k) && (!bestKey || k.length > bestKey.length)) {\n'
+    js_code += '      bestKey = k; bestVal = v;\n'
+    js_code += '    }\n'
     js_code += '  }\n'
-    js_code += '  return null;\n'
+    js_code += '  return bestVal;\n'
     js_code += '}\n\n'
     js_code += 'export function makeAffiliateLink(url, tag) {\n'
     js_code += '  return find(tag) || find(decodeURIComponent(url || "")) || DEFAULT;\n'
