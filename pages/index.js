@@ -2,660 +2,198 @@ import { useState } from "react";
 import Head from "next/head";
 import fs from "fs";
 import path from "path";
-import {
-  LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip,
-  ResponsiveContainer, CartesianGrid, Legend, Cell,
-} from "recharts";
-import { makeAffiliateLink, makeSearchLink, trackClick } from "../lib/affiliate";
 
 export async function getStaticProps() {
-  const fp = path.join(process.cwd(), "data", "products.json");
-  const raw = fs.readFileSync(fp, "utf-8");
-  const data = JSON.parse(raw);
-  
-  // 논문 데이터 로딩
+  const stratPath = path.join(process.cwd(), "data", "strategies.json");
+  const strategies = JSON.parse(fs.readFileSync(stratPath, "utf-8"));
+
   const ppPath = path.join(process.cwd(), "data", "papers.json");
   let papers = [];
-  try { papers = JSON.parse(fs.readFileSync(ppPath, "utf-8")); } catch(e) {}
-  data.papers = papers;
-  
-  return { props: { data } };
+  try {
+    papers = JSON.parse(fs.readFileSync(ppPath, "utf-8"));
+  } catch (e) {}
+
+  return { props: { data: { ...strategies, papers } } };
 }
 
-// ─── 스타일 (글씨 크기 키움) ──────────────
+// ─── 스타일 (기존 톤 유지) ──────────────
 const C = {
-  bg:"#F8F9FA", card:"#FFF", border:"#E9ECEF",
-  text:"#212529", sub:"#6C757D", muted:"#ADB5BD",
-  primary:"#E8590C", primaryBg:"#FFF4E6",
-  blue:"#1971C2", green:"#2B8A3E", red:"#C92A2A",
-  purple:"#7048E8", teal:"#0C8599",
+  bg: "#F8F9FA", card: "#FFF", border: "#E9ECEF",
+  text: "#212529", sub: "#6C757D", muted: "#ADB5BD",
+  primary: "#E8590C", primaryBg: "#FFF4E6",
+  blue: "#1971C2", green: "#2B8A3E", red: "#C92A2A",
+  purple: "#7048E8", teal: "#0C8599",
 };
-const F = { body:"15px", card:"15px", h2:"20px", h3:"17px", small:"13px", tag:"12px" };
+const F = { body: "15px", card: "15px", h2: "20px", h3: "17px", small: "13px", tag: "12px" };
 
-// ─── 공통 컴포넌트 ────────────────────────
+// ─── 공통: 학술 근거 박스 (기존 그대로 재사용) ────────────
 function Insight({ title, children, refs }) {
   return (
-    <div style={{ background:"linear-gradient(135deg,#1A1B1E,#25262B)", color:"#CED4DA",
-      padding:"18px 20px", borderRadius:"12px", borderLeft:`5px solid ${C.primary}`,
-      marginBottom:"18px", fontSize:F.body, lineHeight:1.8 }}>
-      <div style={{ fontSize:F.h3, fontWeight:600, color:"#FD7E14", marginBottom:"8px" }}>{title}</div>
+    <div style={{
+      background: "linear-gradient(135deg,#1A1B1E,#25262B)", color: "#CED4DA",
+      padding: "18px 20px", borderRadius: "12px", borderLeft: `5px solid ${C.primary}`,
+      marginBottom: "18px", fontSize: F.body, lineHeight: 1.8,
+    }}>
+      <div style={{ fontSize: F.h3, fontWeight: 600, color: "#FD7E14", marginBottom: "8px" }}>{title}</div>
       <div>{children}</div>
-      {refs && <div style={{ marginTop:"10px", paddingTop:"8px", borderTop:"1px solid #333",
-        fontSize:F.tag, color:"#868E96" }}>📚 {refs}</div>}
+      {refs && <div style={{
+        marginTop: "10px", paddingTop: "8px", borderTop: "1px solid #333",
+        fontSize: F.tag, color: "#868E96",
+      }}>📚 {refs}</div>}
     </div>
   );
 }
 
-function ProductCard({ item, type }) {
-  const link = makeAffiliateLink(item.url||"", item.cat);
-  const sc = (item.score||0)>=90?C.green:(item.score||0)>=80?C.blue:C.primary;
+// ─── 신규: 종목 카드 (ProductCard 대체) ────────────
+// 쿠팡 상품카드 자리를 대체. 링크/구매 버튼 없음 — 정보 제공용.
+function StockCard({ item }) {
+  const positive = (item.changePct || 0) >= 0;
   return (
-    <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:"12px", padding:"16px" }}>
-      <div style={{ display:"flex", gap:"12px", alignItems:"flex-start" }}>
-        <span style={{ fontSize:"28px", lineHeight:1 }}>{item.img}</span>
-        <div style={{ flex:1, minWidth:0 }}>
-          <div style={{ fontSize:F.card, fontWeight:600, color:C.text }}>{item.rank}. {item.name}</div>
-          <div style={{ fontSize:F.small, color:C.sub, marginTop:"3px" }}>
-            {item.cat} · <b style={{ color:C.text }}>{item.price}원</b>
-            {item.bass && <span style={{ marginLeft:"8px", color:C.purple, fontWeight:600 }}>({item.bass})</span>}
-          </div>
-        </div>
-        {type==="season" && <div style={{ textAlign:"right" }}>
-          <div style={{ fontSize:"20px", fontWeight:700, color:sc }}>{item.score}</div>
-          <div style={{ fontSize:F.tag, color:C.green, fontWeight:600 }}>{item.growth}</div>
-        </div>}
-        {type==="age" && <span style={{ fontSize:F.tag, fontWeight:600, padding:"4px 10px", borderRadius:"10px",
-          background:item.trend==="급상승"?"#FFE3E3":item.trend==="상승"?"#D3F9D8":"#E7F5FF",
-          color:item.trend==="급상승"?C.red:item.trend==="상승"?C.green:C.blue }}>{item.trend}</span>}
-        {type==="blue" && <div style={{ textAlign:"right" }}>
-          <div style={{ fontSize:"20px", fontWeight:700, color:sc }}>{item.score}</div>
-          <div style={{ fontSize:F.tag, color:C.sub }}>{item.opp}</div>
-        </div>}
-      </div>
-      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center",
-        marginTop:"12px", paddingTop:"10px", borderTop:`1px solid ${C.border}` }}>
-        <div style={{ fontSize:F.small, color:C.sub }}>
-          {item.reviews!==undefined && <>리뷰 {(item.reviews||0).toLocaleString()} · 추정 월 {((item.reviews||0)*40).toLocaleString()}건</>}
-          {type==="blue" && <>검색 {(item.demand||0).toLocaleString()} · 판매자 <b style={{ color:(item.sellers||0)<20?C.red:C.text }}>{item.sellers}명</b></>}
-        </div>
-        <a href={link} target="_blank" rel="noopener noreferrer nofollow"
-          onClick={()=>trackClick(type,item.name)}
-          style={{ background:C.primary, color:"#FFF", fontSize:F.small, fontWeight:600,
-            padding:"6px 14px", borderRadius:"8px", textDecoration:"none", whiteSpace:"nowrap" }}>
-          쿠팡에서 보기 →</a>
-      </div>
-    </div>
-  );
-}
-
-function TrendCard({ item, idx }) {
-  return (
-    <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:"12px", padding:"16px" }}>
-      <div style={{ display:"flex", justifyContent:"space-between" }}>
+    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: "12px", padding: "16px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div>
-          <div style={{ fontSize:F.card, fontWeight:700, color:C.text }}>{idx+1}. {item.keyword}</div>
-          <div style={{ fontSize:F.small, color:C.sub, marginTop:"3px" }}>{item.cat} · 월 {(item.vol||0).toLocaleString()}회</div>
-          {item.bass_stage && <div style={{ fontSize:F.tag, color:C.purple, fontWeight:600, marginTop:"2px" }}>📊 {item.bass_stage}</div>}
+          <div style={{ fontSize: F.card, fontWeight: 600, color: C.text }}>{item.rank}. {item.name}</div>
+          <div style={{ fontSize: F.small, color: C.sub, marginTop: "3px" }}>
+            {item.sector} · {item.market}
+          </div>
         </div>
-        <div style={{ fontSize:"16px", fontWeight:700, color:C.red }}>{item.change}</div>
+        <div style={{ textAlign: "right" }}>
+          <div style={{ fontSize: "20px", fontWeight: 700, color: C.blue }}>{item.score}</div>
+          <div style={{ fontSize: F.tag, color: positive ? C.green : C.red, fontWeight: 600 }}>
+            {positive ? "+" : ""}{item.changePct}%
+          </div>
+        </div>
       </div>
-      <div style={{ marginTop:"10px", display:"flex", flexWrap:"wrap", gap:"6px" }}>
-        {(item.tags||[]).map((tag,j)=>(
-          <a key={j} href={makeSearchLink(tag,"trend_tag")} target="_blank" rel="noopener noreferrer nofollow"
-            onClick={()=>trackClick("trend_tag",tag)}
-            style={{ background:C.primaryBg, color:C.primary, fontSize:F.tag, fontWeight:500,
-              padding:"4px 12px", borderRadius:"14px", border:"1px solid #FFD8A8", textDecoration:"none" }}>
-            #{tag}</a>
-        ))}
+      <div style={{
+        display: "flex", justifyContent: "space-between", alignItems: "center",
+        marginTop: "12px", paddingTop: "10px", borderTop: `1px solid ${C.border}`,
+        fontSize: F.small, color: C.sub,
+      }}>
+        <span>현재가 {(item.currentPrice || 0).toLocaleString()}원</span>
+        {item.signalDate && <span>📅 신호일 {item.signalDate}</span>}
       </div>
-      <div style={{ marginTop:"10px", textAlign:"right" }}>
-        <a href={makeSearchLink(item.keyword,"trend_main")} target="_blank" rel="noopener noreferrer nofollow"
-          onClick={()=>trackClick("trend_main",item.keyword)}
-          style={{ fontSize:F.small, color:C.primary, fontWeight:600, textDecoration:"none" }}>쿠팡에서 검색 →</a>
-      </div>
+      {item.note && (
+        <div style={{ fontSize: F.tag, color: C.purple, marginTop: "8px" }}>💡 {item.note}</div>
+      )}
     </div>
   );
 }
 
-// ─── 탭 1: 트렌드 ─────────────────────────
-function TrendTab({ trending }) {
-  return (<>
-    <Insight title="실시간 급상승 키워드 — Bass 확산 모델 적용"
-      refs="Bass, F.M. (1969). A New Product Growth Model for Consumer Durables. Management Science, 15(5).">
-      검색량이 폭발 중인 키워드입니다. 각 키워드의 Bass 확산 단계(도입기→성장기→성숙기→포화기)를 표시했습니다.
-      도입기 키워드는 선점 기회가 크고, 성숙기는 경쟁이 치열하지만 시장 규모가 큽니다.
-    </Insight>
-    <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(320px,1fr))", gap:"14px" }}>
-      {(trending||[]).map((t,i)=><TrendCard key={i} item={t} idx={i}/>)}
+function StockGrid({ items }) {
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))", gap: "12px" }}>
+      {(items || []).map((item, i) => <StockCard key={item.ticker || i} item={item} />)}
     </div>
-  </>);
+  );
 }
 
-// ─── 탭 2: 계절성 ─────────────────────────
-function SeasonTab({ seasons, monthlyTrends }) {
-  const keys=Object.keys(seasons||{});
-  const [sel,setSel]=useState(keys[1]||keys[0]);
-  const chartData=monthlyTrends||[];
-  const chartKeys=chartData.length>0?Object.keys(chartData[0]).filter(k=>k!=="m"):[];
-  const COLORS=["#E03131","#1971C2","#2B8A3E","#0C8599","#7048E8"];
-  return (<>
-    <Insight title="계절성 수요 분석 — 시계열 분해법(STL) 기반"
-      refs="Fernández-Durán, J.J. (2014). Modeling seasonal effects in the Bass model. Technological Forecasting & Social Change, 86. / Hyndman, R.J. (2021). Forecasting: Principles and Practice.">
-      네이버 데이터랩 2년치 검색 트렌드를 추세(Trend)+계절성(Seasonality)+잔차(Residual)로 분해하여 분석합니다.
-      계절성 스코어는 (현재 검색지수 ÷ 과거 2년 피크 검색지수 × 100)으로 계산됩니다.
-    </Insight>
-    <div style={{ display:"flex", gap:"8px", marginBottom:"16px", flexWrap:"wrap" }}>
-      {keys.map(s=>(<button key={s} onClick={()=>setSel(s)} style={{
-        padding:"8px 18px", borderRadius:"20px", fontSize:F.small, cursor:"pointer", fontWeight:sel===s?700:500,
-        background:sel===s?C.primaryBg:C.card, color:sel===s?C.primary:C.sub,
-        border:sel===s?`2px solid ${C.primary}`:`1px solid ${C.border}` }}>{s}</button>))}
-    </div>
-    <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(320px,1fr))", gap:"12px" }}>
-      {(seasons[sel]||[]).map(item=><ProductCard key={item.rank} item={item} type="season"/>)}
-    </div>
-    {chartData.length>0 && <div style={{ background:C.card, borderRadius:"12px", padding:"18px", marginTop:"22px", border:`1px solid ${C.border}` }}>
-      <div style={{ fontSize:F.h3, fontWeight:600, marginBottom:"12px" }}>월별 수요 사이클 (네이버 검색 트렌드 실제 데이터)</div>
-      <ResponsiveContainer width="100%" height={260}>
-        <LineChart data={chartData}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#F1F3F5"/>
-          <XAxis dataKey="m" tick={{ fontSize:12 }}/>
-          <YAxis tick={{ fontSize:12 }}/>
-          <Tooltip/><Legend wrapperStyle={{ fontSize:12 }}/>
-          {chartKeys.map((key,i)=>(<Line key={key} type="monotone" dataKey={key} stroke={COLORS[i%COLORS.length]} strokeWidth={2} dot={{ r:3 }}/>))}
-        </LineChart>
-      </ResponsiveContainer>
-    </div>}
-  </>);
-}
-
-// ─── 탭 3: 연령대 ─────────────────────────
-function AgeTab({ ageGroups }) {
-  const keys=Object.keys(ageGroups||{});
-  const [sel,setSel]=useState("20대");
-  return (<>
-    <Insight title="연령대별 소비 트렌드 — 소비자 세분화(Segmentation) 분석"
-      refs="Kotler, P. & Keller, K.L. (2016). Marketing Management. 15th ed. Pearson. / Smith, W.R. (1956). Product Differentiation and Market Segmentation as Alternative Marketing Strategies.">
-      네이버 데이터랩의 연령대별 검색 비중 데이터를 기반으로, 각 연령층이 가장 많이 검색하는 상품을
-      8개 분야(뷰티/가전/건강/패션/전자/식품/주방/생활)로 분산하여 보여줍니다. 같은 분야 중복이 없습니다.
-    </Insight>
-    <div style={{ display:"flex", gap:"8px", marginBottom:"16px", flexWrap:"wrap" }}>
-      {keys.map(a=>(<button key={a} onClick={()=>setSel(a)} style={{
-        padding:"8px 18px", borderRadius:"20px", fontSize:F.small, cursor:"pointer", fontWeight:sel===a?700:500,
-        background:sel===a?"#F3F0FF":C.card, color:sel===a?C.purple:C.sub,
-        border:sel===a?`2px solid ${C.purple}`:`1px solid ${C.border}` }}>{a}</button>))}
-    </div>
-    <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(320px,1fr))", gap:"12px" }}>
-      {(ageGroups[sel]||[]).map(item=><ProductCard key={item.rank} item={item} type="age"/>)}
-    </div>
-  </>);
-}
-
-// ─── 탭 4: 가격대 ─────────────────────────
-function PriceTab({ priceAnalysis }) {
-  const COLORS=["#339AF0","#51CF66","#FCC419","#FF922B","#FF6B6B","#CC5DE8"];
-  const chartData=(priceAnalysis||[]).map(d=>({ name:d.range, 판매량:d.avgSales, 경쟁강도:Math.round(d.competition*5000) }));
-  return (<>
-    <Insight title="가격대별 골든존 분석 — 가격탄력성(Price Elasticity) 적용"
-      refs="Marshall, A. (1890). Principles of Economics. / Nagle, T.T. & Müller, G. (2018). The Strategy and Tactics of Pricing. 6th ed. Routledge.">
-      가격탄력성 이론에 따르면, 소비자의 가격 민감도는 가격대에 따라 비선형적으로 변합니다.
-      1~3만원대는 충동구매 임계점 이하로, 판매량과 마진의 균형이 최적인 '골든존'입니다.
-      강세 카테고리는 실제 크롤링 데이터에서 해당 가격대에 가장 많은 상품이 속한 분야입니다.
-    </Insight>
-    <div style={{ background:C.card, borderRadius:"12px", padding:"18px", border:`1px solid ${C.border}`, marginBottom:"18px" }}>
-      <div style={{ fontSize:F.h3, fontWeight:600, marginBottom:"12px" }}>판매량 vs 경쟁강도</div>
-      <ResponsiveContainer width="100%" height={260}>
-        <BarChart data={chartData}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#F1F3F5"/>
-          <XAxis dataKey="name" tick={{ fontSize:12 }}/>
-          <YAxis tick={{ fontSize:12 }}/>
-          <Tooltip formatter={(v,n)=>n==="경쟁강도"?(v/5000).toFixed(1)+"점":v.toLocaleString()+"건"}/>
-          <Legend wrapperStyle={{ fontSize:12 }}/>
-          <Bar dataKey="판매량" fill="#339AF0" radius={[4,4,0,0]}/>
-          <Bar dataKey="경쟁강도" fill="#FF922B" radius={[4,4,0,0]}/>
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
-    <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(300px,1fr))", gap:"12px" }}>
-      {(priceAnalysis||[]).map((d,i)=>(
-        <div key={i} style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:"12px", padding:"18px", borderLeft:`5px solid ${COLORS[i]}` }}>
-          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-            <div style={{ fontSize:F.card, fontWeight:700, color:C.text }}>{d.range}</div>
-            <span style={{ background:COLORS[i]+"18", color:COLORS[i], padding:"4px 12px", borderRadius:"12px", fontSize:F.tag, fontWeight:700 }}>마진 {d.margin}</span>
-          </div>
-          <div style={{ fontSize:F.small, color:C.sub, marginTop:"12px", lineHeight:1.8 }}>
-            <div>📦 월 평균 판매: <b style={{ color:C.text }}>{(d.avgSales||0).toLocaleString()}건</b></div>
-            <div>⚔️ 경쟁 강도: <b>{d.competition}/10</b></div>
-            <div>🏆 대표 상품: <b>{d.topItem}</b></div>
-            <div>📂 강세 카테고리: <b style={{ color:C.blue }}>{d.bestCategory}</b></div>
-          </div>
-        </div>))}
-    </div>
-  </>);
-}
-
-// ─── 탭 5: 베스트&랭킹 ───────────────────
-function BestTab({ bestSellers, sellerRankings }) {
-  const [period,setPeriod]=useState("weekly");
-  const [view,setView]=useState("products");
-  const items=(bestSellers||{})[period]||[];
-  return (<>
-    <Insight title="베스트셀러 & 판매자 랭킹 — 롱테일(Long Tail) 전략"
-      refs="Anderson, C. (2006). The Long Tail: Why the Future of Business is Selling Less of More. Hyperion.">
-      Chris Anderson의 롱테일 이론에 따르면, 이커머스에서는 상위 20% 히트상품보다
-      나머지 80%의 니치 상품이 총 매출에서 더 큰 비중을 차지합니다.
-      베스트셀러를 직접 팔기보다, 해당 상품의 보완재/액세서리/소모품을 노리세요.
-    </Insight>
-    <div style={{ display:"flex", gap:"8px", marginBottom:"16px", flexWrap:"wrap" }}>
-      <div style={{ display:"flex", gap:"4px" }}>
-        {[{k:"weekly",l:"주간"},{k:"monthly",l:"월간"}].map(p=>(
-          <button key={p.k} onClick={()=>setPeriod(p.k)} style={{ padding:"7px 16px", borderRadius:"8px",
-            fontSize:F.small, fontWeight:600, cursor:"pointer", border:"none",
-            background:period===p.k?C.text:"#F1F3F5", color:period===p.k?"#FFF":C.sub }}>{p.l}</button>))}
-      </div>
-      <div style={{ display:"flex", gap:"4px", marginLeft:"auto" }}>
-        {[{k:"products",l:"🛍️ 상품"},{k:"sellers",l:"🏪 판매자"}].map(v=>(
-          <button key={v.k} onClick={()=>setView(v.k)} style={{ padding:"7px 16px", borderRadius:"8px",
-            fontSize:F.small, fontWeight:600, cursor:"pointer", border:"none",
-            background:view===v.k?C.primary:"#F1F3F5", color:view===v.k?"#FFF":C.sub }}>{v.l}</button>))}
-      </div>
-    </div>
-    {view==="products" ? (
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(320px,1fr))", gap:"12px" }}>
-        {items.map((item,i)=>{
-          const link=makeAffiliateLink(item.url||"","best");
-          return (<div key={i} style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:"12px", padding:"16px" }}>
-            <div style={{ display:"flex", gap:"12px", alignItems:"center" }}>
-              <span style={{ fontSize:"28px" }}>{item.img}</span>
-              <div style={{ flex:1 }}>
-                <div style={{ fontSize:F.card, fontWeight:600, color:C.text }}>{item.rank}. {item.name}</div>
-                <div style={{ fontSize:F.small, color:C.sub }}>판매자: {item.seller}</div>
-              </div>
-              <div style={{ textAlign:"right" }}>
-                <div style={{ fontSize:F.card, fontWeight:700, color:C.green }}>{item.change}</div>
-                <div style={{ fontSize:F.small, color:C.sub }}>⭐ {item.reviews}</div>
-              </div>
-            </div>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:"12px", paddingTop:"10px", borderTop:`1px solid ${C.border}` }}>
-              <span style={{ fontSize:F.small, color:C.sub }}>{period==="weekly"?"주간":"월간"} {(item.sales||0).toLocaleString()}건</span>
-              <a href={link} target="_blank" rel="noopener noreferrer nofollow" onClick={()=>trackClick("best",item.name)}
-                style={{ background:C.primary, color:"#FFF", fontSize:F.small, fontWeight:600, padding:"6px 14px", borderRadius:"8px", textDecoration:"none" }}>쿠팡에서 보기 →</a>
-            </div>
-          </div>);})}
-      </div>
-    ) : (
-      <div>{(sellerRankings||[]).map((s,i)=>(
-        <div key={i} style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:"12px", padding:"16px", marginBottom:"10px",
-          display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:"10px" }}>
-          <div style={{ display:"flex", gap:"14px", alignItems:"center" }}>
-            <div style={{ width:"36px", height:"36px", borderRadius:"50%", background:i<3?"#FFF3BF":"#F1F3F5",
-              display:"flex", alignItems:"center", justifyContent:"center", fontSize:"16px", fontWeight:700, color:i<3?"#E67700":C.sub }}>{s.rank}</div>
-            <div><div style={{ fontSize:F.card, fontWeight:600, color:C.text }}>{s.name}</div>
-              <div style={{ fontSize:F.small, color:C.sub }}>{s.category} · 상품 {(s.products||0).toLocaleString()}개</div></div>
-          </div>
-          <div style={{ display:"flex", gap:"14px", alignItems:"center" }}>
-            <span style={{ background:"#D3F9D8", color:C.green, padding:"4px 12px", borderRadius:"12px", fontSize:F.tag, fontWeight:600 }}>{s.badge}</span>
-            <div style={{ textAlign:"right" }}><div style={{ fontSize:F.card, fontWeight:700, color:C.text }}>{s.monthlySales}</div>
-              <div style={{ fontSize:F.small, color:C.sub }}>⭐ {s.rating}</div></div>
-          </div>
-        </div>))}</div>
-    )}
-  </>);
-}
-
-// ─── 탭 6: 해외소싱 ──────────────────────
-function GlobalSourcingTab({ globalSourcing }) {
-  const countries=Object.keys(globalSourcing||{});
-  const [sel,setSel]=useState(countries[0]);
-  return (<>
-    <Insight title="해외소싱 핫 아이템 — 글로벌 소싱 전략"
-      refs="Monczka, R.M. et al. (2015). Purchasing and Supply Chain Management. 6th ed. Cengage.">
-      소싱 스코어는 예상마진율(40%) × 수요안정성(30%) × 배송속도(20%) × 품질리스크 역수(10%)로 가중 합산한 지표입니다.
-      중국은 마진↑ 리스크↑, 일본은 품질↑ 마진↓, 미국은 프리미엄 라인에 강합니다.
-    </Insight>
-    <div style={{ display:"flex", gap:"8px", marginBottom:"16px", flexWrap:"wrap" }}>
-      {countries.map(c=>(<button key={c} onClick={()=>setSel(c)} style={{
-        padding:"8px 18px", borderRadius:"20px", fontSize:F.small, cursor:"pointer", fontWeight:sel===c?700:500,
-        background:sel===c?"#D3F9D8":C.card, color:sel===c?C.green:C.sub,
-        border:sel===c?`2px solid ${C.green}`:`1px solid ${C.border}` }}>{c}</button>))}
-    </div>
-    <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(320px,1fr))", gap:"12px" }}>
-      {((globalSourcing||{})[sel]||[]).map((item,i)=>{
-        const sc=item.score>=85?C.green:item.score>=75?C.blue:C.sub;
-        const link=makeSearchLink(item.name,"global");
-        return (<div key={i} style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:"12px", padding:"16px" }}>
-          <div style={{ display:"flex", gap:"12px", alignItems:"flex-start" }}>
-            <span style={{ fontSize:"28px" }}>{item.img}</span>
-            <div style={{ flex:1 }}><div style={{ fontSize:F.card, fontWeight:600, color:C.text }}>{item.rank}. {item.name}</div>
-              <div style={{ fontSize:F.small, color:C.sub, marginTop:"3px" }}>{item.cat}</div></div>
-            <div style={{ textAlign:"right" }}><div style={{ fontSize:"20px", fontWeight:700, color:sc }}>{item.score}</div>
-              <div style={{ fontSize:F.tag, color:C.green, fontWeight:600 }}>{item.margin}</div></div>
-          </div>
-          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:"12px", paddingTop:"10px", borderTop:`1px solid ${C.border}` }}>
-            <div style={{ fontSize:F.small, color:C.sub }}>📦 {item.delivery} · ⚠️ <b style={{ color:item.risk==="높음"?C.red:item.risk==="중간"?"#E67700":C.green }}>{item.risk}</b></div>
-            <a href={link} target="_blank" rel="noopener noreferrer nofollow" onClick={()=>trackClick("global",item.name)}
-              style={{ background:C.primary, color:"#FFF", fontSize:F.small, fontWeight:600, padding:"6px 14px", borderRadius:"8px", textDecoration:"none" }}>쿠팡에서 보기 →</a>
-          </div>
-        </div>);})}
-    </div>
-  </>);
-}
-
-// ─── 탭 7: 블루오션 ──────────────────────
-function BlueOceanTab({ blueOcean }) {
-  return (<>
-    <Insight title="블루오션 발굴기 — Kim & Mauborgne 블루오션 전략론"
-      refs="Kim, W.C. & Mauborgne, R. (2005). Blue Ocean Strategy. Harvard Business Review Press. / Porter, M.E. (1980). Competitive Strategy. Free Press.">
-      블루오션 전략에서 핵심은 '가치 혁신(Value Innovation)' — 경쟁이 무의미해지는 새로운 시장 공간을 창출하는 것입니다.
-      블루오션 스코어는 검색수요(40%) × 판매자 희소성(30%) × 리뷰 만족도(20%) × 카테고리 성장률(10%)을 종합한 지표입니다.
-      판매자가 20명 미만이면 '극히 낮은 경쟁'으로 분류됩니다.
-    </Insight>
-    <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(320px,1fr))", gap:"12px" }}>
-      {(blueOcean||[]).map(item=><ProductCard key={item.rank} item={item} type="blue"/>)}
-    </div>
-  </>);
-}
-
-// ─── 탭 8: 글로벌 트렌드 (NEW) ───────────
-function GlobalTrendTab({ globalTrends }) {
-  const items = globalTrends || [];
-  return (<>
-    <Insight title="글로벌 트렌드 선행 지표 — Rogers 혁신확산 이론"
-      refs="Rogers, E.M. (1962). Diffusion of Innovations. Free Press. / Moore, G.A. (1991). Crossing the Chasm. HarperBusiness.">
-      Rogers의 혁신확산 이론에 따르면, 신제품은 혁신자(2.5%)→얼리어답터(13.5%)→전기다수(34%)→후기다수(34%)→지각수용자(16%) 순으로 확산됩니다.
-      구글 트렌드로 글로벌 검색량과 한국 검색량을 비교하면, 해외에서 먼저 확산된 트렌드가 한국에 진입하는 시점을 2~3개월 전에 예측할 수 있습니다.
-      예: 스탠리 텀블러, 다이슨 에어랩 — 모두 글로벌에서 먼저 터지고 한국에 후행 진입했습니다.
-    </Insight>
-    {items.length > 0 ? (
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(320px,1fr))", gap:"14px" }}>
-        {items.map((item,i)=>{
-          const link=makeSearchLink(item.keyword_kr,"global_trend");
-          return (
-          <div key={i} style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:"12px", padding:"18px" }}>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"12px" }}>
-              <div style={{ display:"flex", gap:"10px", alignItems:"center" }}>
-                <span style={{ fontSize:"28px" }}>{item.img}</span>
-                <div><a href={link} target="_blank" rel="noopener noreferrer nofollow" onClick={()=>trackClick("global_trend",item.keyword_kr)}
-                    style={{ fontSize:F.card, fontWeight:700, color:C.text, textDecoration:"none" }}>{item.keyword_kr}</a>
-                  <div style={{ fontSize:F.small, color:C.sub }}>{item.keyword_en}</div></div>
-              </div>
-              <span style={{ fontSize:F.small, fontWeight:600, padding:"4px 12px", borderRadius:"12px",
-                background:item.stage.includes("임박")?"#FFE3E3":item.stage.includes("상승")?"#D3F9D8":"#E7F5FF",
-                color:item.stage.includes("임박")?C.red:item.stage.includes("상승")?C.green:C.blue }}>{item.stage}</span>
-            </div>
-            <div style={{ display:"flex", gap:"16px", marginBottom:"10px" }}>
-              <div style={{ flex:1, background:"#F8F9FA", borderRadius:"8px", padding:"10px", textAlign:"center" }}>
-                <div style={{ fontSize:F.tag, color:C.sub }}>🌍 글로벌</div>
-                <div style={{ fontSize:"18px", fontWeight:700, color:C.text }}>{item.global_score}</div>
-                <div style={{ fontSize:F.tag, color:item.global_change?.startsWith("+")?C.green:C.red, fontWeight:600 }}>{item.global_change}</div>
-              </div>
-              <div style={{ flex:1, background:"#F8F9FA", borderRadius:"8px", padding:"10px", textAlign:"center" }}>
-                <div style={{ fontSize:F.tag, color:C.sub }}>🇰🇷 한국</div>
-                <div style={{ fontSize:"18px", fontWeight:700, color:C.text }}>{item.kr_score}</div>
-                <div style={{ fontSize:F.tag, color:item.kr_change?.startsWith("+")?C.green:C.red, fontWeight:600 }}>{item.kr_change}</div>
-              </div>
-            </div>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-              <div style={{ fontSize:F.small, color:C.purple, fontWeight:600 }}>📊 Bass 단계: {item.bass_stage}</div>
-              <a href={link} target="_blank" rel="noopener noreferrer nofollow" onClick={()=>trackClick("global_trend",item.keyword_kr)}
-                style={{ fontSize:F.small, color:C.primary, fontWeight:600, textDecoration:"none" }}>쿠팡에서 검색 →</a>
-            </div>
-          </div>);})}
-      </div>
-    ) : (
-      <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:"12px", padding:"24px", textAlign:"center", color:C.sub, fontSize:F.body }}>
-        구글 트렌드 데이터 수집 중입니다. 다음 업데이트에 반영됩니다.
-      </div>
-    )}
-  </>);
-}
-
-// ─── 탭 8-2: 패션 악세사리 뉴스 트렌드 (NEW) ───
-function FashionNewsTab({ fashionNewsTrend }) {
-  const items = fashionNewsTrend || [];
-  return (<>
-    <Insight title="패션 악세사리 뉴스 트렌드 — 화제도 기반 카테고리 랭킹"
-      refs="네이버 뉴스검색 API 기반 카테고리별 최근 언급 빈도 분석">
-      최근 패션 뉴스에서 시계, 목걸이, 가방 등 악세사리 카테고리가 얼마나 자주 언급되는지 집계한 지표입니다.
-      기사 건수가 많을수록 화제도가 높다고 판단하며, 대표 기사는 원문 링크로 확인할 수 있습니다.
-      (특정 인물·브랜드는 노출하지 않고 카테고리 단위로만 분석합니다.)
-    </Insight>
-    {items.length > 0 ? (
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(300px,1fr))", gap:"14px" }}>
-        {items.map((item,i)=>{
-          const link=makeSearchLink(item.category,"fashion_news");
-          return (
-          <div key={i} style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:"12px", padding:"18px" }}>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"10px" }}>
-              <div style={{ display:"flex", gap:"10px", alignItems:"center" }}>
-                <span style={{ fontSize:"28px" }}>{item.img}</span>
-                <a href={link} target="_blank" rel="noopener noreferrer nofollow" onClick={()=>trackClick("fashion_news",item.category)}
-                  style={{ fontSize:F.card, fontWeight:700, color:C.text, textDecoration:"none" }}>{item.category}</a>
-              </div>
-              <span style={{ fontSize:F.small, fontWeight:600, padding:"4px 12px", borderRadius:"12px",
-                background:i<3?"#FFE3E3":"#E7F5FF", color:i<3?C.red:C.blue }}>
-                🔥 관련기사 {item.article_count}건
-              </span>
-            </div>
-            <div style={{ fontSize:F.small, color:C.sub, marginBottom:"12px" }}>{item.blurb}</div>
-            <div style={{ background:"#F8F9FA", borderRadius:"8px", padding:"10px 12px", marginBottom:"12px" }}>
-              <div style={{ fontSize:F.tag, color:C.sub, marginBottom:"4px" }}>📰 대표 기사</div>
-              <a href={item.source_link} target="_blank" rel="noopener noreferrer"
-                style={{ fontSize:F.small, color:C.text, textDecoration:"none", fontWeight:500 }}>
-                {item.source_title} →
-              </a>
-            </div>
-            <a href={link} target="_blank" rel="noopener noreferrer nofollow" onClick={()=>trackClick("fashion_news",item.category)}
-              style={{ display:"block", textAlign:"right", fontSize:F.small, color:C.primary, fontWeight:600, textDecoration:"none" }}>
-              쿠팡에서 {item.category} 검색 →
-            </a>
-          </div>);})}
-      </div>
-    ) : (
-      <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:"12px", padding:"24px", textAlign:"center", color:C.sub, fontSize:F.body }}>
-        패션 뉴스 트렌드 데이터 수집 중입니다. 다음 업데이트에 반영됩니다.
-      </div>
-    )}
-  </>);
-}
-
-// ─── 탭 9: 카테고리 경쟁도 (NEW) ─────────
-function CategoryCompTab({ categoryCompetition }) {
-  const items = categoryCompetition || [];
-  return (<>
-    <Insight title="카테고리 경쟁도 맵 — HHI(허핀달-허쉬만) 지수"
-      refs="Herfindahl, O.C. (1950). Concentration in the Steel Industry. / U.S. DOJ & FTC (2023). Merger Guidelines. / Kim, W.C. & Mauborgne, R. (2005). Blue Ocean Strategy.">
-      HHI(Herfindahl-Hirschman Index)는 미국 법무부가 시장 독과점 판단에 사용하는 공식 지표입니다.
-      판매자 점유율의 제곱합으로 계산하며, HHI {'<'} 1,500 = 경쟁적 시장(진입 기회), 1,500~2,500 = 보통, {'>'} 2,500 = 과점(진입 어려움)으로 분류합니다.
-      이를 이커머스 카테고리에 적용하여 진입 난이도를 객관적으로 평가합니다.
-    </Insight>
-    {items.length > 0 ? (
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(320px,1fr))", gap:"12px" }}>
-        {items.map((item,i)=>{
-          const color = item.level?.includes("🟢")?C.green:item.level?.includes("🟡")?"#E67700":C.red;
-          return (<div key={i} style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:"12px", padding:"18px", borderLeft:`5px solid ${color}` }}>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-              <div style={{ fontSize:F.card, fontWeight:700, color:C.text }}>{item.category}</div>
-              <span style={{ fontSize:F.small, fontWeight:600, color }}>{item.level}</span>
-            </div>
-            <div style={{ fontSize:F.small, color:C.sub, marginTop:"12px", lineHeight:1.9 }}>
-              <div>📊 HHI 지수: <b style={{ color:C.text }}>{(item.hhi||0).toLocaleString()}</b></div>
-              <div>📦 분석 상품: <b>{item.products}개</b></div>
-              <div>💰 평균 가격: <b>{item.avgPrice}원</b></div>
-              <div>⭐ 평균 리뷰: <b>{item.avgReviews}개</b></div>
-              <div>🚀 로켓배송 비율: <b>{item.rocketPct}%</b></div>
-              <div>🏆 대표 상품: <b>{item.topProduct}</b></div>
-            </div>
-          </div>);})}
-      </div>
-    ) : (
-      <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:"12px", padding:"24px", textAlign:"center", color:C.sub, fontSize:F.body }}>
-        카테고리 경쟁도 데이터 수집 중입니다.
-      </div>
-    )}
-  </>);
-}
-
-// ─── 탭 10: 키워드 대결 (NEW) ────────────
-function KeywordBattleTab({ trending }) {
-  const list = trending||[];
-  const [a,setA]=useState(0);
-  const [b,setB]=useState(Math.min(1,list.length-1));
-  const itemA = list[a] || {};
-  const itemB = list[b] || {};
-  const winVol = (itemA.vol||0)>=(itemB.vol||0) ? 0 : 1;
-  return (<>
-    <Insight title="키워드 대결 — 기회비용 분석"
-      refs="Mankiw, N.G. (2020). Principles of Economics. 9th ed. Cengage. / 기회비용(Opportunity Cost): 하나를 선택함으로써 포기하는 최선의 대안 가치.">
-      두 키워드를 나란히 비교하여, 어떤 상품을 올릴지 데이터 기반으로 결정할 수 있습니다.
-      검색량, 경쟁도, 트렌드 방향을 종합적으로 비교하세요.
-    </Insight>
-    <div style={{ display:"flex", gap:"8px", marginBottom:"16px", flexWrap:"wrap", alignItems:"center" }}>
-      <select value={a} onChange={e=>setA(Number(e.target.value))}
-        style={{ padding:"8px 14px", borderRadius:"8px", border:`1px solid ${C.border}`, fontSize:F.small, flex:1, minWidth:"140px" }}>
-        {list.map((t,i)=><option key={i} value={i}>{t.keyword}</option>)}
-      </select>
-      <span style={{ fontSize:"18px", fontWeight:700, color:C.primary }}>VS</span>
-      <select value={b} onChange={e=>setB(Number(e.target.value))}
-        style={{ padding:"8px 14px", borderRadius:"8px", border:`1px solid ${C.border}`, fontSize:F.small, flex:1, minWidth:"140px" }}>
-        {list.map((t,i)=><option key={i} value={i}>{t.keyword}</option>)}
-      </select>
-    </div>
-    <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"14px" }}>
-      {[itemA,itemB].map((item,idx)=>(
-        <div key={idx} style={{ background:C.card, border:`2px solid ${idx===0?"#339AF0":"#FF922B"}`, borderRadius:"12px", padding:"18px" }}>
-          <div style={{ fontSize:F.h3, fontWeight:700, color:C.text, marginBottom:"14px", textAlign:"center" }}>{item.keyword||"—"}</div>
-          <div style={{ fontSize:F.body, color:C.sub, lineHeight:2.2 }}>
-            <div>📊 검색량: <b style={{ color:C.text }}>{(item.vol||0).toLocaleString()}</b>{idx===winVol && " 👑"}</div>
-            <div>📈 변화율: <b style={{ color:(item.change||"").startsWith("+")?C.green:C.red }}>{item.change||"—"}</b></div>
-            {item.bass_stage && <div>🔬 Bass 단계: <b style={{ color:C.purple }}>{item.bass_stage}</b></div>}
-            <div>🏷️ 카테고리: <b>{item.cat||"—"}</b></div>
-          </div>
-        </div>))}
-    </div>
-  </>);
-}
-
-// ─── 탭 11: 트렌드 버블 (NEW) ────────────
-function TrendBubbleTab({ trendBubbles }) {
-  const data = trendBubbles || [];
-  const [country, setCountry] = useState("kr");
-  const countries = [{ k:"kr", l:"🇰🇷 한국" }, { k:"us", l:"🇺🇸 미국" }, { k:"jp", l:"🇯🇵 일본" }];
-  
-  // 해당 국가 데이터 필터
-  const items = data.filter(d => d.country === country);
-  const maxVol = Math.max(...items.map(d => d.vol || 1), 1);
-
-  // 버블 레이아웃 계산 (간단한 나선 배치)
-  const bubbles = items.sort((a,b) => (b.vol||0) - (a.vol||0)).map((item, i) => {
-    const ratio = (item.vol || 1) / maxVol;
-    const r = Math.max(28, Math.min(75, ratio * 75));
-    const angle = i * 2.4;
-    const dist = 50 + i * 28;
-    const cx = 340 + Math.cos(angle) * dist;
-    const cy = 260 + Math.sin(angle) * dist;
-    return { ...item, r, cx, cy };
-  });
+// ─── 탭 1: 학술퀀트 (quant-endgame 5대 전략) ────────────
+function AcademicQuantTab({ strategies }) {
+  const list = strategies || [];
+  const [sel, setSel] = useState(0);
+  const s = list[sel];
+  if (!s) return <div style={{ color: C.sub }}>전략 데이터를 준비 중입니다.</div>;
 
   return (<>
-    <Insight title="트렌드 버블 맵 — 검색량 시각화"
-      refs="네이버 데이터랩 성별 검색 비중 + Google Trends 국가별 데이터 기반">
-      원의 크기는 검색량, 색상은 성별 비중을 나타냅니다.
-      파란색은 남성 검색 비중이 높은 키워드, 빨간색/분홍색은 여성 비중이 높은 키워드입니다.
-      보라색은 성별 차이가 적은 키워드입니다.
-    </Insight>
-
-    {/* 국가 선택 */}
-    <div style={{ display:"flex", gap:"8px", marginBottom:"18px", flexWrap:"wrap" }}>
-      {countries.map(c => (
-        <button key={c.k} onClick={() => setCountry(c.k)} style={{
-          padding:"8px 18px", borderRadius:"20px", fontSize:F.small, cursor:"pointer",
-          fontWeight: country===c.k ? 700 : 500,
-          background: country===c.k ? "#E7F5FF" : C.card,
-          color: country===c.k ? C.blue : C.sub,
-          border: country===c.k ? `2px solid ${C.blue}` : `1px solid ${C.border}`,
-        }}>{c.l}</button>
+    <div style={{ display: "flex", gap: "8px", marginBottom: "16px", flexWrap: "wrap" }}>
+      {list.map((strat, i) => (
+        <button key={strat.strategyId} onClick={() => setSel(i)} style={{
+          padding: "8px 18px", borderRadius: "20px", fontSize: F.small, cursor: "pointer",
+          fontWeight: sel === i ? 700 : 500,
+          background: sel === i ? C.primaryBg : C.card, color: sel === i ? C.primary : C.sub,
+          border: sel === i ? `2px solid ${C.primary}` : `1px solid ${C.border}`,
+        }}>{strat.title}</button>
       ))}
     </div>
 
-    {/* 범례 */}
-    <div style={{ display:"flex", gap:"20px", marginBottom:"16px", fontSize:F.small, color:C.sub }}>
-      <span><span style={{ display:"inline-block", width:"14px", height:"14px", borderRadius:"50%", background:"#339AF0", verticalAlign:"middle", marginRight:"6px" }}></span>남성 비중 높음</span>
-      <span><span style={{ display:"inline-block", width:"14px", height:"14px", borderRadius:"50%", background:"#E64980", verticalAlign:"middle", marginRight:"6px" }}></span>여성 비중 높음</span>
-      <span><span style={{ display:"inline-block", width:"14px", height:"14px", borderRadius:"50%", background:"#7048E8", verticalAlign:"middle", marginRight:"6px" }}></span>성별 균등</span>
-      <span style={{ marginLeft:"auto" }}>원 크기 = 검색량</span>
-    </div>
+    <Insight title={`📜 ${s.paperTitle}`} refs={`${s.paperAuthors} · ${s.journal}`}>
+      <span style={{ color: "#FACC15", fontWeight: 600 }}>💡 핵심 원리</span><br />
+      {s.principle}
+      <br /><br />
+      <span style={{ color: "#FACC15", fontWeight: 600 }}>⚙️ 스크리닝 알고리즘</span><br />
+      {s.algorithm}
+      <br /><br />
+      <span style={{ color: "#FACC15", fontWeight: 600 }}>🎯 활용 가이드</span><br />
+      {s.guide}
+    </Insight>
 
-    {/* 버블 차트 */}
-    {bubbles.length > 0 ? (
-      <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:"12px", padding:"10px", overflow:"hidden" }}>
-        <svg viewBox="0 0 680 520" width="100%" style={{ display:"block" }}>
-          {bubbles.map((b, i) => {
-            const femaleRatio = b.femaleRatio || 50;
-            const color = femaleRatio > 60 ? "#E64980" : femaleRatio < 40 ? "#339AF0" : "#7048E8";
-            const opacity = 0.6 + (b.vol / maxVol) * 0.35;
-            return (
-              <g key={i}>
-                <circle cx={b.cx} cy={b.cy} r={b.r} fill={color} opacity={opacity} stroke="#FFF" strokeWidth="2"/>
-                <text x={b.cx} y={b.cy - (b.r > 40 ? 8 : 0)} textAnchor="middle" dominantBaseline="central"
-                  fill="#FFF" fontWeight="700" fontSize={b.r > 50 ? "14px" : b.r > 35 ? "11px" : "9px"}>
-                  {b.keyword.length > 6 ? b.keyword.slice(0, 6) : b.keyword}
-                </text>
-                {b.r > 40 && (
-                  <text x={b.cx} y={b.cy + 12} textAnchor="middle" dominantBaseline="central"
-                    fill="rgba(255,255,255,0.8)" fontSize="10px">
-                    {(b.vol||0).toLocaleString()}
-                  </text>
-                )}
-              </g>
-            );
-          })}
-        </svg>
-      </div>
-    ) : (
-      <div style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:"12px", padding:"40px", textAlign:"center", color:C.sub }}>
-        트렌드 버블 데이터 수집 중입니다. 다음 업데이트에 반영됩니다.
-      </div>
-    )}
-
-    {/* 키워드 상세 테이블 */}
-    {items.length > 0 && (
-      <div style={{ marginTop:"18px" }}>
-        <div style={{ fontSize:F.h3, fontWeight:600, marginBottom:"12px", color:C.text }}>키워드 상세</div>
-        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(300px,1fr))", gap:"10px" }}>
-          {items.slice(0,12).map((item, i) => (
-            <div key={i} style={{ background:C.card, border:`1px solid ${C.border}`, borderRadius:"10px", padding:"14px",
-              display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-              <div>
-                <div style={{ fontSize:F.card, fontWeight:600, color:C.text }}>{item.keyword}</div>
-                <div style={{ fontSize:F.small, color:C.sub, marginTop:"3px" }}>
-                  ♂ {100-(item.femaleRatio||50)}% · ♀ {item.femaleRatio||50}%
-                </div>
-              </div>
-              <div style={{ textAlign:"right" }}>
-                <div style={{ fontSize:F.card, fontWeight:700, color:C.text }}>{(item.vol||0).toLocaleString()}</div>
-                <div style={{ fontSize:F.tag, color: (item.change||"").startsWith("+") ? C.green : C.red }}>{item.change}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    )}
+    <StockGrid items={s.stocks} />
   </>);
 }
 
-// ─── 탭 12: 논문 분석 ───────────────────
+// ─── 탭 2: 차트패턴 (컵앤핸들, 박스권 돌파 등) ────────────
+function ChartPatternTab({ patterns }) {
+  const list = patterns || [];
+  const [sel, setSel] = useState(0);
+  const p = list[sel];
+  if (!p) return <div style={{ color: C.sub }}>패턴 데이터를 준비 중입니다.</div>;
+
+  return (<>
+    <div style={{ display: "flex", gap: "8px", marginBottom: "16px", flexWrap: "wrap" }}>
+      {list.map((pattern, i) => (
+        <button key={pattern.patternId} onClick={() => setSel(i)} style={{
+          padding: "8px 18px", borderRadius: "20px", fontSize: F.small, cursor: "pointer",
+          fontWeight: sel === i ? 700 : 500,
+          background: sel === i ? "#F3F0FF" : C.card, color: sel === i ? C.purple : C.sub,
+          border: sel === i ? `2px solid ${C.purple}` : `1px solid ${C.border}`,
+        }}>{pattern.title}</button>
+      ))}
+    </div>
+
+    <Insight title={`📈 ${p.title}`}>
+      <span style={{ color: "#FACC15", fontWeight: 600 }}>💡 패턴 설명</span><br />
+      {p.description}
+      <br /><br />
+      <span style={{ color: "#FACC15", fontWeight: 600 }}>⚙️ 감지 조건</span><br />
+      {p.criteria}
+    </Insight>
+
+    <StockGrid items={p.stocks} />
+  </>);
+}
+
+// ─── 탭 3: 레전드 투자자 전략 (버핏/오닐/린치 등) ────────────
+function LegendaryInvestorTab({ investors }) {
+  const list = investors || [];
+  const [sel, setSel] = useState(0);
+  const inv = list[sel];
+  if (!inv) return <div style={{ color: C.sub }}>투자자 전략 데이터를 준비 중입니다.</div>;
+
+  return (<>
+    <div style={{ display: "flex", gap: "8px", marginBottom: "16px", flexWrap: "wrap" }}>
+      {list.map((investor, i) => (
+        <button key={investor.investorId} onClick={() => setSel(i)} style={{
+          padding: "8px 18px", borderRadius: "20px", fontSize: F.small, cursor: "pointer",
+          fontWeight: sel === i ? 700 : 500,
+          background: sel === i ? "#E7F5FF" : C.card, color: sel === i ? C.blue : C.sub,
+          border: sel === i ? `2px solid ${C.blue}` : `1px solid ${C.border}`,
+        }}>{investor.name}</button>
+      ))}
+    </div>
+
+    <Insight title={`👑 ${inv.name} — ${inv.strategyName}`}>
+      <span style={{ color: "#FACC15", fontWeight: 600 }}>💡 투자 철학</span><br />
+      {inv.principle}
+      <br /><br />
+      <span style={{ color: "#FACC15", fontWeight: 600 }}>⚙️ 스크리닝 기준</span><br />
+      {inv.criteria}
+    </Insight>
+
+    <StockGrid items={inv.stocks} />
+  </>);
+}
+
+// ─── 탭 4: 논문 분석 (기존 PapersTab 그대로 재사용) ────────────
 function PapersTab({ papers }) {
   const [selected, setSelected] = useState(null);
   const list = papers || [];
   return (<>
-    <Insight title="마케팅 논문 분석 — 학술 연구 기반 인사이트"
-      refs="본 섹션의 논문들은 peer-reviewed 학술지에 게재된 연구를 분석한 것입니다.">
-      이커머스와 소비자 행동에 관한 최신 학술 논문을 분석하여, 데이터 기반 의사결정에 필요한 인사이트를 제공합니다.
-      논문 제목을 클릭하면 상세 내용을 확인할 수 있습니다.
+    <Insight title="퀀트 학술 논문 분석 — 각 전략의 원 논문 정리"
+      refs="본 섹션의 논문들은 peer-reviewed 학술지 또는 워킹페이퍼로 게재된 연구입니다.">
+      이 사이트가 사용하는 각 퀀트 전략의 원 논문을 정리했습니다. 논문 제목을 클릭하면 상세 내용을 확인할 수 있습니다.
     </Insight>
 
-    {/* 논문 목록 (세로 정렬) */}
-    <div style={{ display:"flex", flexDirection:"column", gap:"12px" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
       {list.map((paper, i) => (
         <div key={paper.id || i}
           onClick={() => setSelected(selected === i ? null : i)}
@@ -677,8 +215,6 @@ function PapersTab({ papers }) {
               {selected === i ? "▲" : "▼"}
             </span>
           </div>
-
-          {/* 태그 */}
           {paper.tags && paper.tags.length > 0 && (
             <div style={{ display: "flex", gap: "6px", marginTop: "10px", flexWrap: "wrap" }}>
               {paper.tags.map((tag, j) => (
@@ -693,103 +229,54 @@ function PapersTab({ papers }) {
       ))}
     </div>
 
-    {/* 팝업 (선택된 논문 상세) */}
     {selected !== null && list[selected] && (() => {
       const p = list[selected];
       return (
         <div style={{
           position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
           background: "rgba(0,0,0,0.6)", zIndex: 9999,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          padding: "20px",
+          display: "flex", alignItems: "center", justifyContent: "center", padding: "20px",
         }} onClick={() => setSelected(null)}>
           <div onClick={e => e.stopPropagation()} style={{
             background: C.card, borderRadius: "16px", padding: "28px",
             maxWidth: "700px", width: "100%", maxHeight: "85vh", overflowY: "auto",
             boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
           }}>
-            {/* 헤더 */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "16px" }}>
               <div>
                 <div style={{ fontSize: F.h2, fontWeight: 700, color: C.text, lineHeight: 1.4 }}>{p.title}</div>
                 {p.titleEn && <div style={{ fontSize: F.small, color: C.sub, fontStyle: "italic", marginTop: "4px" }}>{p.titleEn}</div>}
               </div>
               <button onClick={() => setSelected(null)} style={{
-                background: "none", border: "none", fontSize: "24px", cursor: "pointer",
-                color: C.sub, padding: "0 4px", flexShrink: 0,
+                background: "none", border: "none", fontSize: "24px", cursor: "pointer", color: C.sub, padding: "0 4px", flexShrink: 0,
               }}>✕</button>
             </div>
-
-            {/* 메타 정보 */}
-            <div style={{ fontSize: F.small, color: C.sub, marginBottom: "16px",
-              padding: "10px 14px", background: "#F8F9FA", borderRadius: "8px", lineHeight: 1.8 }}>
+            <div style={{
+              fontSize: F.small, color: C.sub, marginBottom: "16px",
+              padding: "10px 14px", background: "#F8F9FA", borderRadius: "8px", lineHeight: 1.8,
+            }}>
               <div>👤 저자: <b style={{ color: C.text }}>{p.authors}</b></div>
               <div>📖 저널: <b style={{ color: C.blue }}>{p.journal}</b> ({p.year})</div>
-              {p.doi && <div>🔗 DOI: <a href={p.doi} target="_blank" rel="noopener noreferrer" style={{ color: C.blue }}>{p.doi}</a></div>}
               {p.methodology && <div>🔬 방법론: <b>{p.methodology}</b></div>}
             </div>
-
-            {/* Abstract */}
             <div style={{ marginBottom: "16px" }}>
               <div style={{ fontSize: F.card, fontWeight: 600, color: C.text, marginBottom: "8px" }}>Abstract</div>
-              <div style={{ fontSize: F.body, color: C.sub, lineHeight: 1.8,
-                padding: "12px 16px", background: "#FFFBF0", borderRadius: "8px", borderLeft: `4px solid #FCC419` }}>
-                {p.abstract}
-              </div>
+              <div style={{
+                fontSize: F.body, color: C.sub, lineHeight: 1.8,
+                padding: "12px 16px", background: "#FFFBF0", borderRadius: "8px", borderLeft: "4px solid #FCC419",
+              }}>{p.abstract}</div>
             </div>
-
-            {/* 주요 발견 */}
             {p.keyFindings && p.keyFindings.length > 0 && (
-              <div style={{ marginBottom: "16px" }}>
+              <div>
                 <div style={{ fontSize: F.card, fontWeight: 600, color: C.text, marginBottom: "8px" }}>주요 발견</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                   {p.keyFindings.map((finding, j) => (
                     <div key={j} style={{
                       fontSize: F.body, color: C.text, lineHeight: 1.7,
-                      padding: "10px 14px", background: "#F0FFF4", borderRadius: "8px",
-                      borderLeft: `4px solid ${C.green}`,
-                    }}>
-                      {finding}
-                    </div>
+                      padding: "10px 14px", background: "#F0FFF4", borderRadius: "8px", borderLeft: `4px solid ${C.green}`,
+                    }}>{finding}</div>
                   ))}
                 </div>
-              </div>
-            )}
-
-            {/* 마케팅 인사이트 */}
-            {p.marketingInsight && (
-              <div style={{
-                padding: "14px 18px", background: "linear-gradient(135deg,#1A1B1E,#25262B)",
-                borderRadius: "10px", borderLeft: `5px solid ${C.primary}`,
-              }}>
-                <div style={{ fontSize: F.card, fontWeight: 600, color: "#FD7E14", marginBottom: "6px" }}>
-                  💡 이커머스 셀러를 위한 시사점
-                </div>
-                <div style={{ fontSize: F.body, color: "#CED4DA", lineHeight: 1.8 }}>
-                  {p.marketingInsight}
-                </div>
-              </div>
-            )}
-
-            {/* 논문 이미지 */}
-            {p.image && (
-              <div style={{ marginTop: "16px" }}>
-                <div style={{ fontSize: F.card, fontWeight: 600, color: C.text, marginBottom: "8px" }}>📊 관련 그래프 / 다이어그램</div>
-                <img src={p.image} alt={p.title} style={{
-                  width: "100%", borderRadius: "8px", border: `1px solid ${C.border}`,
-                }} />
-              </div>
-            )}
-
-            {/* 태그 */}
-            {p.tags && p.tags.length > 0 && (
-              <div style={{ display: "flex", gap: "6px", marginTop: "16px", flexWrap: "wrap" }}>
-                {p.tags.map((tag, j) => (
-                  <span key={j} style={{
-                    background: "#F3F0FF", color: C.purple, fontSize: F.tag,
-                    padding: "4px 12px", borderRadius: "12px", fontWeight: 500,
-                  }}>{tag}</span>
-                ))}
               </div>
             )}
           </div>
@@ -801,105 +288,88 @@ function PapersTab({ papers }) {
 
 // ─── 메인 ─────────────────────────────────
 const TABS = [
-  { id:"trend", label:"트렌드", icon:"🔥" },
-  { id:"season", label:"계절성", icon:"🌸" },
-  { id:"age", label:"연령대", icon:"👤" },
-  { id:"price", label:"가격대", icon:"💰" },
-  { id:"best", label:"베스트", icon:"🏆" },
-  { id:"source", label:"해외소싱", icon:"🌏" },
-  { id:"blue", label:"블루오션", icon:"🔵" },
-  { id:"global", label:"글로벌", icon:"🌐" },
-  { id:"fashion", label:"패션뉴스", icon:"👔" },
-  { id:"compete", label:"경쟁도", icon:"📊" },
-  { id:"battle", label:"키워드대결", icon:"⚔️" },
-  { id:"bubble", label:"트렌드맵", icon:"🫧" },
-  { id:"papers", label:"논문분석", icon:"📚" },
+  { id: "academic", label: "학술퀀트", icon: "🎯" },
+  { id: "chart", label: "차트패턴", icon: "📈" },
+  { id: "legend", label: "레전드투자자", icon: "👑" },
+  { id: "papers", label: "논문분석", icon: "📚" },
 ];
 
 export default function Home({ data }) {
-  const [tab,setTab]=useState("trend");
+  const [tab, setTab] = useState("academic");
   return (<>
     <Head>
-      <title>MarketQuant 마켓퀀트 — 퀀트 분석으로 읽는 이커머스 트렌드</title>
-      <meta name="description" content="학술 기반 이커머스 분석. Bass 확산 모델, HHI 시장집중도, Rogers 혁신확산 이론으로 트렌드를 예측합니다."/>
-      <meta property="og:title" content="MarketQuant — 이커머스 퀀트 분석"/>
-      <meta property="og:description" content="데이터와 학술 이론 기반 이커머스 트렌드 분석"/>
-      <meta property="og:type" content="website"/>
-      <meta name="robots" content="index, follow"/>
+      <title>MarketQuant 마켓퀀트 — 학술 논문 기반 퀀트 전략 스크리너</title>
+      <meta name="description" content="Jegadeesh(1993), Heston(2008) 등 학술 논문 기반 퀀트 전략, 컵앤핸들/박스권 돌파 등 차트패턴, 버핏·오닐·린치 등 레전드 투자자 전략을 한 곳에서 확인합니다." />
+      <meta property="og:title" content="MarketQuant — 학술 퀀트 전략 스크리너" />
+      <meta property="og:description" content="데이터와 학술 이론 기반 주식 전략 분석" />
+      <meta property="og:type" content="website" />
+      <meta name="robots" content="index, follow" />
     </Head>
 
-    <header style={{ background:"linear-gradient(135deg,#1A1B1E,#25262B)", padding:"22px 16px 16px" }}>
-      <div style={{ maxWidth:1200, margin:"0 auto", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:"10px" }}>
+    <header style={{ background: "linear-gradient(135deg,#1A1B1E,#25262B)", padding: "22px 16px 16px" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px" }}>
         <div>
-          <h1 style={{ fontSize:"26px", fontWeight:800, color:"#FFF", letterSpacing:"-0.5px", margin:0 }}>
-            <span style={{ color:"#339AF0" }}>Market</span><span style={{ color:"#FD7E14" }}>Quant</span>
-            <span style={{ fontSize:"13px", fontWeight:500, color:"#868E96", marginLeft:"10px" }}>마켓퀀트</span>
+          <h1 style={{ fontSize: "26px", fontWeight: 800, color: "#FFF", letterSpacing: "-0.5px", margin: 0 }}>
+            <span style={{ color: "#339AF0" }}>Market</span><span style={{ color: "#FD7E14" }}>Quant</span>
+            <span style={{ fontSize: "13px", fontWeight: 500, color: "#868E96", marginLeft: "10px" }}>마켓퀀트</span>
           </h1>
-          <p style={{ fontSize:F.small, color:"#868E96", margin:"4px 0 0" }}>
-            퀀트 분석으로 읽는 이커머스 트렌드 — 뭘 사야 하지? 뭘 팔아야 하지?
+          <p style={{ fontSize: F.small, color: "#868E96", margin: "4px 0 0" }}>
+            학술 논문 기반 퀀트 전략, 차트패턴, 레전드 투자자 전략을 한 곳에서
           </p>
         </div>
-        <div style={{ fontSize:F.tag, color:"#868E96", background:"rgba(255,255,255,0.06)", padding:"6px 14px", borderRadius:"16px" }}>
-          📅 {data.updated} 업데이트
+        <div style={{ fontSize: F.tag, color: "#868E96", background: "rgba(255,255,255,0.06)", padding: "6px 14px", borderRadius: "16px" }}>
+          📅 {data.updated || "업데이트 준비 중"}
         </div>
       </div>
     </header>
 
-    <nav style={{ background:C.card, borderBottom:`1px solid ${C.border}`, position:"sticky", top:0, zIndex:50 }}>
-      <div style={{ maxWidth:1200, margin:"0 auto", display:"flex", overflowX:"auto" }}>
-        {TABS.map(t=>(
-          <button key={t.id} onClick={()=>setTab(t.id)} style={{
-            padding:"14px 16px", fontSize:F.small, cursor:"pointer", fontWeight:tab===t.id?700:500,
-            color:tab===t.id?C.primary:C.sub,
-            borderBottom:tab===t.id?`3px solid ${C.primary}`:"3px solid transparent",
-            background:"none", border:"none", whiteSpace:"nowrap" }}>{t.icon} {t.label}</button>))}
+    <div style={{
+      background: "#FEF2F2", border: "1px solid #FECACA", color: "#991B1B",
+      padding: "10px 16px", fontSize: "13px", textAlign: "center",
+    }}>
+      본 사이트는 투자자문업이 아니며, 매매 시그널을 제공하지 않는 통계 시각화 툴입니다. 모든 투자 판단과 책임은 본인에게 있습니다.
+    </div>
+
+    <nav style={{ background: C.card, borderBottom: `1px solid ${C.border}`, position: "sticky", top: 0, zIndex: 50 }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", overflowX: "auto" }}>
+        {TABS.map(t => (
+          <button key={t.id} onClick={() => setTab(t.id)} style={{
+            padding: "14px 16px", fontSize: F.small, cursor: "pointer", fontWeight: tab === t.id ? 700 : 500,
+            color: tab === t.id ? C.primary : C.sub,
+            borderBottom: tab === t.id ? `3px solid ${C.primary}` : "3px solid transparent",
+            background: "none", border: "none", whiteSpace: "nowrap",
+          }}>{t.icon} {t.label}</button>
+        ))}
       </div>
     </nav>
 
-    <main style={{ maxWidth:1200, margin:"0 auto", padding:"20px 16px" }}>
-      {tab==="trend" && <TrendTab trending={data.trending}/>}
-      {tab==="season" && <SeasonTab seasons={data.seasons} monthlyTrends={data.monthlyTrends}/>}
-      {tab==="age" && <AgeTab ageGroups={data.ageGroups}/>}
-      {tab==="price" && <PriceTab priceAnalysis={data.priceAnalysis}/>}
-      {tab==="best" && <BestTab bestSellers={data.bestSellers} sellerRankings={data.sellerRankings}/>}
-      {tab==="source" && <GlobalSourcingTab globalSourcing={data.globalSourcing}/>}
-      {tab==="blue" && <BlueOceanTab blueOcean={data.blueOcean}/>}
-      {tab==="global" && <GlobalTrendTab globalTrends={data.globalTrends}/>}
-      {tab==="fashion" && <FashionNewsTab fashionNewsTrend={data.fashionNewsTrend}/>}
-      {tab==="compete" && <CategoryCompTab categoryCompetition={data.categoryCompetition}/>}
-      {tab==="battle" && <KeywordBattleTab trending={data.trending}/>}
-      {tab==="bubble" && <TrendBubbleTab trendBubbles={data.trendBubbles}/>}
-      {tab==="papers" && <PapersTab papers={data.papers}/>}
+    <main style={{ maxWidth: 1200, margin: "0 auto", padding: "20px 16px" }}>
+      {tab === "academic" && <AcademicQuantTab strategies={data.academicQuant} />}
+      {tab === "chart" && <ChartPatternTab patterns={data.chartPatterns} />}
+      {tab === "legend" && <LegendaryInvestorTab investors={data.legendaryInvestors} />}
+      {tab === "papers" && <PapersTab papers={data.papers} />}
     </main>
 
-    <footer style={{ background:"#1A1B1E", color:"#868E96", padding:"32px 16px 24px", fontSize:F.tag, lineHeight:1.9, marginTop:"30px" }}>
-      <div style={{ maxWidth:1200, margin:"0 auto" }}>
-        <div style={{ textAlign:"center", marginBottom:"16px" }}>
-          <span style={{ fontWeight:700, fontSize:"18px" }}><span style={{ color:"#339AF0" }}>Market</span><span style={{ color:"#FD7E14" }}>Quant</span></span>
-          <span style={{ color:"#495057", marginLeft:"8px" }}>마켓퀀트</span>
+    <footer style={{ background: "#1A1B1E", color: "#868E96", padding: "32px 16px 24px", fontSize: F.tag, lineHeight: 1.9, marginTop: "30px" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: "16px" }}>
+          <span style={{ fontWeight: 700, fontSize: "18px" }}><span style={{ color: "#339AF0" }}>Market</span><span style={{ color: "#FD7E14" }}>Quant</span></span>
+          <span style={{ color: "#495057", marginLeft: "8px" }}>마켓퀀트</span>
         </div>
-        <div style={{ background:"rgba(255,255,255,0.03)", borderRadius:"8px", padding:"16px 18px", marginBottom:"16px", textAlign:"left", color:"#ADB5BD" }}>
-          <div style={{ fontWeight:600, color:"#CED4DA", marginBottom:"8px" }}>분석 방법론 및 데이터 출처</div>
-          <p>상품 데이터: 주요 이커머스 플랫폼 실시간 크롤링 (상품명, 가격, 리뷰 수, 평점, 배송 유형)</p>
-          <p>검색 트렌드: 네이버 데이터랩 API 기반 월별 검색량, 연령대/성별 분석 (최대 2년치 시계열)</p>
-          <p>글로벌 트렌드: Google Trends API 기반 글로벌 vs 한국 검색량 교차 분석</p>
-          <p>패션 뉴스 트렌드: 네이버 뉴스검색 API 기반 악세사리 카테고리별 최근 언급 빈도 분석 (특정 인물·브랜드 비노출)</p>
-          <p>계절성 스코어: 현재 검색지수 ÷ 과거 2년 피크 검색지수 × 100 (STL 분해법 응용)</p>
-          <p>블루오션 스코어: 검색 수요 ÷ 활성 판매자 수 기반 기회 지수 (Kim & Mauborgne, 2005)</p>
-          <p>시장집중도: HHI(Herfindahl-Hirschman Index) — 미국 법무부 기준 적용</p>
-          <p>확산 단계: Bass 확산 모델(1969) 기반 도입기→성장기→성숙기→포화기 판정</p>
-          <p>추정 판매량: 리뷰 수 × 40 (업계 경험치 기반 역추정, Hu et al. 2019 참고)</p>
+        <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: "8px", padding: "16px 18px", marginBottom: "16px", textAlign: "left", color: "#ADB5BD" }}>
+          <div style={{ fontWeight: 600, color: "#CED4DA", marginBottom: "8px" }}>분석 방법론 및 데이터 출처</div>
+          <p>가격 데이터: KRX 상장 종목 일봉 데이터 (10년치 누적, 매일 갱신)</p>
+          <p>학술퀀트 전략: Jegadeesh & Titman(1993) 모멘텀, Heston & Sadka(2008) 계절성 등 peer-reviewed 논문 기반</p>
+          <p>차트패턴: 컵앤핸들, 박스권 돌파 등 고전 기술적 분석 패턴을 알고리즘으로 자동 감지</p>
+          <p>레전드 투자자 전략: 워런 버핏(가치투자), 윌리엄 오닐(CANSLIM), 피터 린치(GARP) 등 공개된 투자 원칙을 스크리닝 기준으로 정량화</p>
         </div>
-        <div style={{ textAlign:"center", marginBottom:"14px", color:"#868E96" }}>
+        <div style={{ textAlign: "center", marginBottom: "14px", color: "#868E96" }}>
           <p>본 사이트의 데이터는 공개 소스 기반 통계 분석 결과이며, 수집 시기 및 분석 방법에 따라 실제와 차이가 있을 수 있습니다.</p>
-          <p>모든 투자 및 사업 결정은 본인의 판단과 책임 하에 이루어져야 합니다.</p>
-          <p>이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</p>
+          <p>모든 투자 및 매매 결정은 본인의 판단과 책임 하에 이루어져야 하며, 본 사이트는 투자자문업에 해당하지 않습니다.</p>
         </div>
-        <div style={{ textAlign:"center", borderTop:"1px solid #2C2E33", paddingTop:"14px", color:"#495057" }}>
+        <div style={{ textAlign: "center", borderTop: "1px solid #2C2E33", paddingTop: "14px", color: "#495057" }}>
           <p>© 2026 MarketQuant(마켓퀀트). All rights reserved.</p>
-          <p>본 사이트의 콘텐츠, 데이터, 분석 방법론, 소스 코드 및 디자인은 저작권법에 의해 보호됩니다.</p>
-          <p>무단 복제, 배포, 재가공을 금지하며, 위반 시 관련 법령에 따라 법적 조치를 취할 수 있습니다.</p>
-          <p style={{ marginTop:"8px", color:"#868E96" }}>문의: marketquant.info@gmail.com</p>
+          <p style={{ marginTop: "8px", color: "#868E96" }}>문의: marketquant.info@gmail.com</p>
         </div>
       </div>
     </footer>
